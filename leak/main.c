@@ -2,6 +2,6 @@
 #include <stdlib.h>
 
 int main() {
-    char *p = (char *)malloc(10);
-    return 0;
+  char* p = (char*)malloc(10);
+  return 0;
 }

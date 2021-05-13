@@ -2,23 +2,21 @@
 using namespace std;
 
 class Abc {
-    int xyz = 0;
+  int xyz = 0;
 };
 
-void classLeak() {
-    Abc *abc = new Abc();
-}
+void classLeak() { Abc* abc = new Abc(); }
 
 void charLeak() {
-    char *p = new char[10];    // vs ±àÒëÆ÷Ôò²»½øĞĞ³õÊ¼»¯
-    char *q = new char[10]();  // vs ±àÒëÆ÷½«Æä³õÊ¼»¯Îª0
+  char* p = new char[10];    // vs ç¼–è¯‘å™¨åˆ™ä¸è¿›è¡Œåˆå§‹åŒ–
+  char* q = new char[10]();  // vs ç¼–è¯‘å™¨å°†å…¶åˆå§‹åŒ–ä¸º0
 
-    cout << "p:" << p << endl;
-    cout << "q:" << q << endl;
-    delete p;
+  cout << "p:" << p << endl;
+  cout << "q:" << q << endl;
+  delete p;
 }
 
-int main(int argc, char *argv[]) {
-    classLeak();
-    return 0;
+int main(int argc, char* argv[]) {
+  classLeak();
+  return 0;
 }
