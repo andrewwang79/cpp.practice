@@ -20,3 +20,6 @@ g++ -g -o out/leakcpp leak/main.cpp
 valgrind --tool=memcheck --leak-check=full --show-reachable=yes ./out/leakcpp
 valgrind --tool=massif --time-unit=B ./out/leakcpp && ms_print massif.out.30403
 ```
+
+## 文档生成
+* 生成命令：cd path && doxygen Doxyfile
