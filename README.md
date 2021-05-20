@@ -6,6 +6,8 @@
 | crash | 崩溃 |  |
 | global | 全局变量引用 |  |
 | leak | 内存泄漏 |  |
+| doxygen | doxygen文档 |  |
+| gtest | 单元测试 | C++11和cmake3.14 |
 
 ## 编译
 ```
@@ -23,3 +25,12 @@ valgrind --tool=massif --time-unit=B ./out/leakcpp && ms_print massif.out.30403
 
 ## 文档生成
 * 生成命令：cd path && doxygen Doxyfile
+
+## 单元测试
+* https://google.github.io/googletest/quickstart-cmake.html
+
+```
+cmake -S . -B build && cmake --build build && cd build && ./unittestDemo
+lcov -d . -t unittest -o test.info -b . -c
+genhtml -o result test.info
+```
