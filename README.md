@@ -30,7 +30,11 @@ valgrind --tool=massif --time-unit=B ./out/leakcpp && ms_print massif.out.30403
 * https://google.github.io/googletest/quickstart-cmake.html
 
 ```
-cmake -S . -B build && cmake --build build && cd build && ./unittestDemo
-lcov -d . -t unittest -o test.info -b . -c
+# lcov的路径必须100%匹配，比如不能多个斜杠
+# 项目目录除了build目录，其他内容都进行分析
+prj_path=/root/cpp.practice/gtest/
+cd ${prj_path}
+rm -rf build && cmake -S . -B build && cmake --build build && cd build && ./unittestDemo
+lcov -d . -t unittest -o test.info -b . -c && lcov -r test.info -o test.info "${prj_path}build/*" && lcov -e test.info -o test.info "${prj_path}*"
 genhtml -o result test.info
 ```

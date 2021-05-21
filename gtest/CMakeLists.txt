@@ -1,10 +1,12 @@
 cmake_minimum_required(VERSION 3.14)
-project(unittestDemo)
+
+set(TARGET_NAME "unittestDemo")
+project(${TARGET_NAME})
 
 # GoogleTest requires at least C++11
 set(CMAKE_CXX_STANDARD 11)
 
-# gtest
+# gtest option
 include(FetchContent)
 FetchContent_Declare(
   googletest
@@ -17,17 +19,21 @@ FetchContent_MakeAvailable(googletest)
 
 enable_testing()
 
+file(GLOB SOURCE_FILES *.cpp *.cxx)
+aux_source_directory(. SOURCE_FILES)
+aux_source_directory(samples SOURCE_FILES)
+
 add_executable(
-  unittestDemo
-  hello_test.cc
+  ${TARGET_NAME}
+  ${SOURCE_FILES}
 )
 target_link_libraries(
-  unittestDemo
+  ${TARGET_NAME}
   gtest_main
 )
 
 include(GoogleTest)
-gtest_discover_tests(unittestDemo)
+gtest_discover_tests(${TARGET_NAME})
 
 
 # coverage option
