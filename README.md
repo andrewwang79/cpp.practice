@@ -31,10 +31,12 @@ valgrind --tool=massif --time-unit=B ./out/leakcpp && ms_print massif.out.30403
 
 ```
 # lcov的路径必须100%匹配，比如不能多个斜杠
-# 项目目录除了build目录，其他内容都进行分析
+# 除了build目录和test目录，其他模块内容都进行分析
 prj_path=/root/cpp.practice/gtest/
+module_name=demo
 cd ${prj_path}
-rm -rf build && cmake -S . -B build && cmake --build build && cd build && ./unittestDemo
-lcov -d . -t unittest -o test.info -b . -c && lcov -r test.info -o test.info "${prj_path}build/*" && lcov -e test.info -o test.info "${prj_path}*"
-genhtml -o result test.info
+rm -rf build && cmake -S . -B build && cmake --build build && cd build/${module_name} && ./${module_name}
+lcov -d . -t unittest -o ${module_name}.ut.info -b . -c
+lcov -r ${module_name}.ut.info -o ${module_name}.ut.info "${prj_path}build/*" "${prj_path}${module_name}/test/*" && lcov -e ${module_name}.ut.info -o ${module_name}.ut.info "${prj_path}${module_name}/*"
+genhtml -o result ${module_name}.ut.info
 ```

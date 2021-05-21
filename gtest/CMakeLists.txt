@@ -1,10 +1,11 @@
 cmake_minimum_required(VERSION 3.14)
 
-set(TARGET_NAME "unittestDemo")
+set(TARGET_NAME "gtest")
 project(${TARGET_NAME})
 
 # GoogleTest requires at least C++11
 set(CMAKE_CXX_STANDARD 11)
+
 
 # gtest option
 include(FetchContent)
@@ -19,22 +20,6 @@ FetchContent_MakeAvailable(googletest)
 
 enable_testing()
 
-file(GLOB SOURCE_FILES *.cpp *.cxx)
-aux_source_directory(. SOURCE_FILES)
-aux_source_directory(samples SOURCE_FILES)
-
-add_executable(
-  ${TARGET_NAME}
-  ${SOURCE_FILES}
-)
-target_link_libraries(
-  ${TARGET_NAME}
-  gtest_main
-)
-
-include(GoogleTest)
-gtest_discover_tests(${TARGET_NAME})
-
 
 # coverage option
 OPTION (ENABLE_COVERAGE "Use gcov" ON)
@@ -44,3 +29,7 @@ IF(ENABLE_COVERAGE)
     SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fprofile-arcs -ftest-coverage")
     SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fprofile-arcs -ftest-coverage")
 ENDIF()
+
+
+add_subdirectory ("samples")
+add_subdirectory ("demo")
