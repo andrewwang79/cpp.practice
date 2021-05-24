@@ -17,6 +17,7 @@ FetchContent_Declare(
 # For Windows: Prevent overriding the parent project's compiler/linker settings
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
+MESSAGE( STATUS "mock header file is in ${CMAKE_BINARY_DIR}/_deps/googletest-src/googlemock/include/")
 
 enable_testing()
 

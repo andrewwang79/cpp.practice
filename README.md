@@ -24,6 +24,12 @@ valgrind --tool=massif --time-unit=B ./out/leakcpp && ms_print massif.out.30403
 ```
 
 ## 文档生成
+```
+函数定义参见DogService.h
+主页参见main.cpp
+新增导航树页面参见article.md
+```
+
 * 生成命令：cd path && doxygen Doxyfile
 
 ## 单元测试
