@@ -6,21 +6,32 @@
 | crash | 崩溃 |  |
 | global | 全局变量引用 |  |
 | leak | 内存泄漏 |  |
+| log | 日志log4cplus |  |
 | doxygen | doxygen文档 |  |
 | gtest | 单元测试 | C++11和cmake3.14 |
 
-## 编译
+## 其他的编译
 ```
 mkdir -p out
 
+// crash
 gcc -o out/crash crash/main.c
 
+// global
 gcc -o out/global global/main_support.c global/main.c
 
+// leak
 gcc -o out/leakc leak/main.c
 g++ -g -o out/leakcpp leak/main.cpp
 valgrind --tool=memcheck --leak-check=full --show-reachable=yes ./out/leakcpp
 valgrind --tool=massif --time-unit=B ./out/leakcpp && ms_print massif.out.30403
+
+// log
+// 获取log4cplus的头文件和lib，以下示例是通过conan
+log4cplusPath=/root/.conan/data/log4cplus/2.0.4/Common/stable/package/0ab9fcf606068d4347207cc29edd400ceccbc944/
+log4cplusHeaderPath=${log4cplusPath}/include/ && log4cplusLibPath=${log4cplusPath}/lib/release/
+cd log && g++ -g -o log.exe main.cpp -I ${log4cplusHeaderPath} -L ${log4cplusLibPath} -llog4cplus
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${log4cplusLibPath} && ./log.exe
 ```
 
 ## 文档生成
