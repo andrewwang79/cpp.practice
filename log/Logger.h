@@ -13,6 +13,7 @@
 #define LOG_INFO(msg) LOG4CPLUS_INFO(logger, LOG4CPLUS_STRING_TO_TSTRING(msg))
 #define LOG_WARN(msg) LOG4CPLUS_WARN(logger, LOG4CPLUS_STRING_TO_TSTRING(msg))
 #define LOG_ERROR(msg) LOG4CPLUS_ERROR(logger, LOG4CPLUS_STRING_TO_TSTRING(msg))
+#define LOG_EXCEPTION(title, ex) LOG4CPLUS_ERROR_FMT(logger, "%s : msg[%s]", title, LOG4CPLUS_STRING_TO_TSTRING(ex.what()))
 
 #define LOG_TRACE_FMT(...) LOG4CPLUS_TRACE_FMT(logger, ##__VA_ARGS__)
 #define LOG_DEBUG_FMT(...) LOG4CPLUS_DEBUG_FMT(logger, ##__VA_ARGS__)

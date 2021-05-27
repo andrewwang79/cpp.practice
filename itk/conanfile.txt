@@ -1,0 +1,5 @@
+[requires]
+ITK/4.13.1@Algorithm/stable
+
+[generators]
+cmake
