@@ -1,0 +1,29 @@
+{
+  "configurations": [
+    {
+      "name": "Linux-Debug",
+      "configurationType": "Debug",
+      "buildCommandArgs": "",
+      "cmakeCommandArgs": "",
+      "cmakeExecutable": "/usr/local/bin/cmake",
+      "ctestCommandArgs": "",
+      "generator": "Unix Makefiles",
+      "inheritEnvironments": [ "linux_x64" ],
+      "intelliSenseMode": "linux-gcc-x64",
+      "remoteBuildRoot": "/var/tmp/build/${workspaceHash}/build/",
+      "remoteCMakeListsRoot": "/var/tmp/build/${workspaceHash}/cmake/",
+      "remoteCopyBuildOutput": false,
+      "remoteCopySources": true,
+      "remoteCopySourcesConcurrentCopies": "10",
+      "remoteCopySourcesExclusionList": [ ".vs", ".git" ],
+      "remoteCopySourcesMethod": "rsync",
+      "remoteCopySourcesOutputVerbosity": "Normal",
+      "remoteInstallRoot": "",
+      "remoteMachineName": "1169455288;172.16.17.59 (username=root, port=30037, authentication=Password)",
+      "remotePostbuildCommand": "make install",
+      "remotePreGenerateCommand": "",
+      "rsyncCommandArgs": "-t --delete --delete-excluded",
+      "variables": []
+    }
+  ]
+}

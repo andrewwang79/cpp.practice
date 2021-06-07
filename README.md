@@ -6,6 +6,7 @@
 | :----: | -- | -- |
 | moderncpp | 现代C++特性 |  |
 | global | 全局变量引用 |  |
+| libLoad | lib加载 |  |
 | crash | 崩溃 |  |
 | leak | 内存泄漏 |  |
 | log | 日志log4cplus |  |
@@ -26,6 +27,16 @@ mkdir -p out
 gcc -o out/global global/main_support.c global/main.c
 ./out/global
 ```
+
+## libLoad
+* Linux C/C++ 实现热更新：https://howardlau.me/programming/c-cpp-hot-reload.html，https://zhuanlan.zhihu.com/p/162366167
+*
+| 目录 | 说明 |
+| :----: | -- |
+| testLibX | 测试库，安装到/usr/ |
+| compileDemo | demo加载同1个解决方案下的so |
+| sysDemo | demo动态加载系统级的so。testLibX需先cmake install才可编译，默认关闭本项目 |
+| dynamicDemo | demo动态加载so，可满足热更新。不需要头文件，要指定so的路径。 |
 
 ## crash
 ```
@@ -53,13 +64,15 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${log4cplusLibPath} && ./log.exe
 ```
 
 ## doxygen
-* 使用
+* 文档编写
 ```
 函数定义参见DogService.h
 主页参见main.cpp
 新增导航树页面参见article.md
 ```
-* 生成命令：cd path && doxygen Doxyfile
+* 2种生成命令
+  * cd doxygen && doxygen Doxyfile
+  * cd doxygen && sh gen.sh doxygenDemo 1.0.0.0 ./ ./doc doxyfile.tpl
 
 ## gtest
 * https://google.github.io/googletest/quickstart-cmake.html
