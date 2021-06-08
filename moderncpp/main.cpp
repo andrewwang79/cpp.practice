@@ -1,3 +1,5 @@
+#include <cxxabi.h>
+
 #include <algorithm>
 #include <cstddef>
 #include <functional>
@@ -92,6 +94,16 @@ auto print_type_info(const T& t) {
   }
 }
 int xyz(int a, int b, int c) { std::cout << a + b + c << std::endl; }
+
+class TestClass {
+ public:
+  int xyz(int a, int b, int c) { std::cout << a * b * c << std::endl; }
+};
+
+namespace ABC {
+class TypeClass {};
+}  // namespace ABC
+
 void _misc() {
   std::cout << "--------_misc--------" << std::endl;
   std::cout << print_type_info(5) << std::endl;
@@ -112,11 +124,26 @@ void _misc() {
     std::cout << element << std::endl;  // read only
   }
 
-  // 将参数1,2绑定到函数 foo 上，但是使用 std::placeholders::_1
-  // 来对第一个参数进行占位
+  std::cout << "FN:" << std::endl;
+  // 绑定函数。参数1使用占位符，参数2值是1，参数3值是2。使用时只需要输入参数1
   auto bindXyz = std::bind(xyz, std::placeholders::_1, 1, 2);
-  // 这时调用 bindFoo 时，只需要提供第一个参数即可
   bindXyz(1);
+  // 绑定类函数
+  auto bindClassXyz =
+      std::bind(&TestClass::xyz, new TestClass(), std::placeholders::_1,
+                std::placeholders::_2, std::placeholders::_3);
+  bindClassXyz(1, 2, 3);
+
+  typedef std::function<void(int, int, int)> FnXyz;
+  FnXyz xyz1 = xyz;
+  xyz1(2, 3, 4);
+
+  // typeid
+  std::cout << typeid(ABC::TypeClass).name() << std::endl;  // N3ABC9TypeClassE
+  std::cout << abi::__cxa_demangle(typeid(ABC::TypeClass).name(), nullptr,
+                                   nullptr,
+                                   nullptr)
+            << std::endl;  // ABC::TypeClass
 }
 // misc end
 
