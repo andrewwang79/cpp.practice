@@ -80,10 +80,14 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${log4cplusLibPath} && ./log.exe
 ```
 # lcov的参数注意事项：路径必须100%匹配，比如多个斜杠就会错误
 # 除了build目录和test目录，其他模块内容都会进行分析
+# 执行：
+安装cmake3.14，gtest放到服务器/root/cpp.practice/gtest/
 prj_path=/root/cpp.practice/gtest/
 module_name=demo
 cd ${prj_path}
-rm -rf build && cmake -S . -B build && cmake --build build && cd build/${module_name} && ./${module_name}
+rm -rf build && cmake -S . -B build && cmake --build build -j$((`nproc`+1))
+# 只有so，验证使用。rm -rf build && cmake -S . -B build -DENABLE_UT=OFF -DENABLE_UT_PRIVATE=OFF && cmake --build build -j$((`nproc`+1))
+cd build/${module_name} && ./${module_name}
 lcov -d . -t unittest -o ${module_name}.ut.info -b . -c
 lcov -r ${module_name}.ut.info -o ${module_name}.ut.info "${prj_path}build/*" "${prj_path}${module_name}/test/*" && lcov -e ${module_name}.ut.info -o ${module_name}.ut.info "${prj_path}${module_name}/*"
 genhtml -o result ${module_name}.ut.info

@@ -6,31 +6,33 @@ project(${TARGET_NAME})
 # GoogleTest requires at least C++11
 set(CMAKE_CXX_STANDARD 11)
 
+OPTION (ENABLE_UT "ENABLE UT" ON)
+IF(ENABLE_UT)
+  # gtest option
+  include(FetchContent)
+  FetchContent_Declare(
+    googletest
+    GIT_REPOSITORY https://github.com/google/googletest.git
+    GIT_TAG        release-1.10.0
+  )
+  # For Windows: Prevent overriding the parent project's compiler/linker settings
+  set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+  FetchContent_MakeAvailable(googletest)
+  MESSAGE( STATUS "mock header file is in ${CMAKE_BINARY_DIR}/_deps/googletest-src/googlemock/include/")
 
-# gtest option
-include(FetchContent)
-FetchContent_Declare(
-  googletest
-  GIT_REPOSITORY https://github.com/google/googletest.git
-  GIT_TAG        release-1.10.0
-)
-# For Windows: Prevent overriding the parent project's compiler/linker settings
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(googletest)
-MESSAGE( STATUS "mock header file is in ${CMAKE_BINARY_DIR}/_deps/googletest-src/googlemock/include/")
-
-enable_testing()
+  enable_testing()
 
 
-# coverage option
-OPTION (ENABLE_COVERAGE "Use gcov" ON)
-MESSAGE(STATUS ENABLE_COVERAGE=${ENABLE_COVERAGE})
-IF(ENABLE_COVERAGE)
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage")
-    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fprofile-arcs -ftest-coverage")
-    SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fprofile-arcs -ftest-coverage")
+  # coverage option
+  OPTION (ENABLE_COVERAGE "Use gcov" ON)
+  MESSAGE(STATUS ENABLE_COVERAGE=${ENABLE_COVERAGE})
+  IF(ENABLE_COVERAGE)
+      SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage")
+      SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fprofile-arcs -ftest-coverage")
+      SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fprofile-arcs -ftest-coverage")
+  ENDIF()
+
+  add_subdirectory ("samples")
 ENDIF()
 
-
-add_subdirectory ("samples")
 add_subdirectory ("demo")
