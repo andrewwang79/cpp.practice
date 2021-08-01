@@ -6,8 +6,9 @@ project(${TARGET_NAME})
 # GoogleTest requires at least C++11
 set(CMAKE_CXX_STANDARD 11)
 
-OPTION (ENABLE_UT "ENABLE UT" ON)
+OPTION (ENABLE_UT "ENABLE UT" OFF)
 IF(ENABLE_UT)
+  add_definitions(-DMACRO_ENABLE_UT)
   # gtest option
   include(FetchContent)
   FetchContent_Declare(

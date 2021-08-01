@@ -85,8 +85,8 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${log4cplusLibPath} && ./log.exe
 prj_path=/root/cpp.practice/gtest/
 module_name=demo
 cd ${prj_path}
-rm -rf build && cmake -S . -B build && cmake --build build -j$((`nproc`+1))
-# 只有so，验证使用。rm -rf build && cmake -S . -B build -DENABLE_UT=OFF -DENABLE_UT_PRIVATE=OFF && cmake --build build -j$((`nproc`+1))
+rm -rf build && cmake -S . -B build -DENABLE_UT=ON && cmake --build build -j$((`nproc`+1))
+# 只有so没有UT，验证使用。rm -rf build && cmake -S . -B build && cmake --build build -j$((`nproc`+1))
 cd build/${module_name} && ./${module_name}
 lcov -d . -t unittest -o ${module_name}.ut.info -b . -c
 lcov -r ${module_name}.ut.info -o ${module_name}.ut.info "${prj_path}build/*" "${prj_path}${module_name}/test/*" && lcov -e ${module_name}.ut.info -o ${module_name}.ut.info "${prj_path}${module_name}/*"

@@ -1,10 +1,10 @@
 #include <string>
 using namespace std;
 
-#ifdef ENABLE_UT_PRIVATE
-#define UNIT_TEST_PRIVATE public
+#ifdef MACRO_ENABLE_UT
+  #define UNIT_TEST_PRIVATE public
 #else
-#define UNIT_TEST_PRIVATE private
+  #define UNIT_TEST_PRIVATE private
 #endif
 
 class Parent {

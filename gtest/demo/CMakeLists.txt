@@ -10,11 +10,6 @@ add_library(${TARGET_NAME}_lib SHARED ${SO_SOURCE_FILES} )
 
 # UT
 IF(ENABLE_UT)
-  option(ENABLE_UT_PRIVATE "enable ut private function" ON)
-  IF(ENABLE_UT_PRIVATE) 
-    add_definitions(-DENABLE_UT_PRIVATE)
-  ENDIF()
-
   # GoogleTest requires at least C++11
   set(CMAKE_CXX_STANDARD 11)
   file(GLOB SOURCE_FILES *.cc *.cpp *.cxx)

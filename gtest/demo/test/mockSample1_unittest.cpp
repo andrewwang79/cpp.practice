@@ -46,11 +46,9 @@ TEST(mockDemo, 2) {
   EXPECT_EQ(t.doThat(), 3);
 }
 
-#ifdef ENABLE_UT_PRIVATE
 TEST(mockDemo, privateFn) {
   MockParent p;
   Target t(&p);
 
   EXPECT_EQ(t.pp(1), 2);
 }
-#endif
