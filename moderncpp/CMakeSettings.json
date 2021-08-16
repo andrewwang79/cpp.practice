@@ -4,7 +4,7 @@
       "name": "Linux-Debug",
       "configurationType": "Debug",
       "buildCommandArgs": "",
-      "cmakeCommandArgs": "",
+      "cmakeCommandArgs": "-j $((`nproc`+1))",
       "cmakeExecutable": "/usr/local/bin/cmake",
       "ctestCommandArgs": "",
       "generator": "Unix Makefiles",
