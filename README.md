@@ -41,8 +41,12 @@ gcc -o out/global global/main_support.c global/main.c
 ## crash
 ```
 mkdir -p out
-gcc -o out/crash crash/main.c
+gcc -g -o out/crash crash/main.c
 ./out/crash
+
+mkdir -p out
+gcc -g -o out/fork_crash crash/fork_main.c
+./out/fork_crash
 ```
 
 ## leak
