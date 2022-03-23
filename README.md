@@ -6,7 +6,7 @@
 | :----: | -- | -- |
 | moderncpp | 现代C++特性 |  |
 | global | 全局变量引用 |  |
-| libLoad | lib加载 | 含cmake install |
+| libLoad | lib动态加载 | 含cmake install |
 | crash | 崩溃 |  |
 | leak | 内存泄漏 |  |
 | log | 日志log4cplus |  |
