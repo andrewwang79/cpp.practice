@@ -6,7 +6,7 @@
  * @date 2022-04-19
  *
  * @copyright Copyright (c) 2022 https://www.bbsmax.com/A/QV5ZZapn5y/,
- * Nebula框架
+ * 代码分析详见 https://cpp.wangyaqi.cn/#/material/kb?id=reflect
  */
 
 #include <cxxabi.h>
@@ -39,18 +39,10 @@ class ActorFactory {
   virtual ~ActorFactory(){};
   // Lambda: static std::string ReadTypeName(const char * name)
   // bool Regist(const std::string& strTypeName, ActorCreateFunction pFunc)
-  // bool Regist(const std::string& strTypeName, std::function<Actor*()> pFunc)
   bool Regist(const std::string& strTypeName, std::function<Actor*(Targs&&... args)> pFunc) {
     std::cout << "bool ActorFactory::Regist(const std::string& strTypeName, std::function<Actor*(Targs... args)> pFunc)" << std::endl;
     if (nullptr == pFunc) { return (false); }
     std::string strRealTypeName = strTypeName;
-    //[&strTypeName, &strRealTypeName]{int iPos = strTypeName.rfind(' '); strRealTypeName = std::move(strTypeName.substr(iPos+1, strTypeName.length() - (iPos + 1)));};
-    /*
-            auto ClassNameLambda = [&strRealTypeName](const std::string& strTypeName)
-            {
-            }
-            ClassNameLambda(strTypeName);
-    */
     bool bReg = m_mapCreateFunction.insert(std::make_pair(strRealTypeName, pFunc)).second;
     std::cout << "m_mapCreateFunction.size() =" << m_mapCreateFunction.size() << std::endl;
     return (bReg);
@@ -87,7 +79,6 @@ class ActorFactory {
   ActorFactory() { std::cout << "ActorFactory construct" << std::endl; };
   static ActorFactory<Targs...>* m_pActorFactory;
   // std::unordered_map<std::string, ActorCreateFunction> m_mapCreateFunction;
-  // std::unordered_map<std::string, std::function<Actor*()> > m_mapCreateFunction;
   std::unordered_map<std::string, std::function<Actor*(Targs&&...)> > m_mapCreateFunction;
 };
 
@@ -155,12 +146,11 @@ class Worker {
 }  // namespace neb
 
 int main() {
-  // Actor* p1 = ActorFactory<std::string, int>::Instance()->Create(std::string("Cmd"), std::string("neb::Cmd"), 1001);
-  // Actor* p3 = ActorFactory<>::Instance()->Create(std::string("Cmd"));
+  // Actor* p1 = ActorFactory<>::Instance()->Create(std::string("neb::Cmd"));
+  // Actor* p2 = ActorFactory<std::string, int>::Instance()->Create(std::string("neb::Step"), std::string("neb::Step"), 1002);
   neb::Worker W;
   neb::Actor* p1 = W.CreateActor(std::string("neb::Cmd"));
   p1->Say();
-  // std::cout << abi::__cxa_demangle(typeid(Worker).name(), nullptr, nullptr, nullptr) << std::endl;
   std::cout << "----------------------------------------------------------------------" << std::endl;
   neb::Actor* p2 = W.CreateActor(std::string("neb::Step"), std::string("neb::Step"), 1002);
   p2->Say();
