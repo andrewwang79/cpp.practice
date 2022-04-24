@@ -58,23 +58,6 @@ class ActorFactory {
       return (iter->second(std::forward<Targs>(args)...));
     }
   }
-  /*
-      T* Create(const std::string& strTypeName)
-      {
-          Actor* pObj = Create(strTypeName);
-          if (!pObj)
-          {
-              return(nullptr);
-          }
-          T* pRealObj = dynamic_cast<T*>(pObj);
-          if (!pRealObj)
-          {
-              delete pObj;
-              return(nullptr);
-          }
-          return(pRealObj);
-      }
-  */
  private:
   ActorFactory() { std::cout << "ActorFactory construct" << std::endl; };
   static ActorFactory<Targs...>* m_pActorFactory;

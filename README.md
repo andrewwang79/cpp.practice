@@ -74,9 +74,8 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${log4cplusLibPath} && ./log.exe
 主页参见main.cpp
 新增导航树页面参见article.md
 ```
-* 2种生成命令
-  * cd doxygen && doxygen Doxyfile
-  * cd doxygen && sh gen.sh doxygenDemo 1.0.0.0 ./ ./doc doxyfile.tpl
+* 生成命令
+  * cd doxygen && sh gen.sh doxygenDemo 1.0.0.1 ./ ./doc doxyfile.tpl
 
 ## gtest
 * https://google.github.io/googletest/quickstart-cmake.html
