@@ -58,6 +58,7 @@ class ActorFactory {
       return (iter->second(std::forward<Targs>(args)...));
     }
   }
+
  private:
   ActorFactory() { std::cout << "ActorFactory construct" << std::endl; };
   static ActorFactory<Targs...>* m_pActorFactory;
@@ -79,14 +80,12 @@ class DynamicCreator {
 #ifdef __GNUC__
       szDemangleName = abi::__cxa_demangle(typeid(T).name(), nullptr, nullptr, nullptr);
 #else
-      // in this format?:     szDemangleName =  typeid(T).name();
-      szDemangleName = abi::__cxa_demangle(typeid(T).name(), nullptr, nullptr, nullptr);
+      szDemangleName = typeid(T).name();  // Windows是"Class : namespace::className"，需去掉前八个字符
 #endif
       if (nullptr != szDemangleName) {
         strTypeName = szDemangleName;
         free(szDemangleName);
       }
-      // std::cout << typeid(T).name() << "\t" << strTypeName << std::endl;
       ActorFactory<Targs...>::Instance()->Regist(strTypeName, CreateObject);
     }
     inline void do_nothing() const {};

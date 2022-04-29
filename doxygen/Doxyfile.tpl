@@ -1093,13 +1093,13 @@ STRIP_CODE_COMMENTS    = YES
 # entity all documented functions referencing it will be listed.
 # The default value is: NO.
 
-REFERENCED_BY_RELATION = NO
+REFERENCED_BY_RELATION = YES
 
 # If the REFERENCES_RELATION tag is set to YES then for each documented function
 # all documented entities called/used by that function will be listed.
 # The default value is: NO.
 
-REFERENCES_RELATION    = NO
+REFERENCES_RELATION    = YES
 
 # If the REFERENCES_LINK_SOURCE tag is set to YES and SOURCE_BROWSER tag is set
 # to YES then the hyperlinks from functions in REFERENCES_RELATION and
@@ -2497,7 +2497,7 @@ INCLUDED_BY_GRAPH      = YES
 # The default value is: NO.
 # This tag requires that the tag HAVE_DOT is set to YES.
 
-CALL_GRAPH             = NO
+CALL_GRAPH             = YES
 
 # If the CALLER_GRAPH tag is set to YES then doxygen will generate a caller
 # dependency graph for every global function or class method.
@@ -2509,7 +2509,7 @@ CALL_GRAPH             = NO
 # The default value is: NO.
 # This tag requires that the tag HAVE_DOT is set to YES.
 
-CALLER_GRAPH           = NO
+CALLER_GRAPH           = YES
 
 # If the GRAPHICAL_HIERARCHY tag is set to YES then doxygen will graphical
 # hierarchy of all classes instead of a textual one.
