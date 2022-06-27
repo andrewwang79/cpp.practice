@@ -13,6 +13,7 @@
 | doxygen | doxygen文档 |  |
 | gtest | 单元测试 | C++11和cmake3.14，含单元测试覆盖率lcov |
 | [ITK](https://medical.wangyaqi.cn/#/graphics/itk) | 图像处理库 | 在Windows开发和远程调试Linux服务器的CMake程序 |
+| libtest | 静态库动态库调用验证 | 模拟不同链接顺序，的情况 |
 
 ## moderncpp
 ```
@@ -63,8 +64,8 @@ valgrind --tool=massif --time-unit=B ./out/leakcpp && ms_print massif.out.30403
 log4cplusPath=/root/.conan/data/log4cplus/2.0.4/Common/stable/package/0ab9fcf606068d4347207cc29edd400ceccbc944/
 log4cplusHeaderPath=${log4cplusPath}/include/ && log4cplusLibPath=${log4cplusPath}/lib/release/
 prj_path=/root/cpp.practice/log/
-cd ${prj_path} && g++ -g -o log.exe main.cpp -I ${log4cplusHeaderPath} -L ${log4cplusLibPath} -llog4cplus
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${log4cplusLibPath} && ./log.exe
+cd ${prj_path} && g++ -g -o log main.cpp -I ${log4cplusHeaderPath} -L ${log4cplusLibPath} -llog4cplus
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${log4cplusLibPath} && ./log
 ```
 
 ## doxygen
@@ -105,4 +106,28 @@ module_name=itk
 cd ${prj_path}
 rm -rf build && mkdir build && cd build && conan install ../conanfile.txt -s arch=x86_64 -s os=Linux -r cloud --update && cd ..
 cmake -S . -B build && cmake --build build && cd build/ && ./bin/${module_name}
+```
+
+## libtest
+```
+clear
+rm -rf out/*
+
+echo compile
+gcc -o out/test1.o -c test1.c
+ar -v -q out/libtest1.a out/test1.o
+gcc -fPIC -shared test1.c -o out/libtest1.so
+
+gcc -o out/test2.o -c test2.c
+ar -v -q out/libtest2.a out/test2.o
+gcc -fPIC -shared test2.c -o out/libtest2.so
+ 
+echo 把不同版本的库按照不同顺序链接，优先链接动态库
+gcc -o out/main1 main.c -L bin -ltest1 -ltest2
+gcc -o out/main2 main.c -L bin -ltest2 -ltest1
+
+cp -f out/*.so /usr/lib
+echo 观察输出结果：，main1输出"sum=7"，main2输出"sum=10"
+./out/main1
+./out/main2
 ```
