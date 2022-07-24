@@ -1,4 +1,5 @@
 .vs/
+out/
 doxygen/doc/
 gtest/out/
 gtest/result/

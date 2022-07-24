@@ -4,15 +4,15 @@
 ## 目录结构
 | 目录 | 内容 | 说明 |
 | :----: | -- | -- |
-| moderncpp | 现代C++特性，DynamicCreate.cpp：反射机制 |  |
+| moderncpp | 反射机制(DynamicCreate.cpp) <br> 智能指针使用方法 <br> 内存泄漏的场景和示例 <br> | 现代C++特性 |
 | global | 全局变量引用 |  |
 | libLoad | lib动态加载 | 含cmake install |
 | crash | 崩溃 |  |
-| leak | 内存泄漏 |  |
+| leak | 内存泄漏的场景和示例 <br> 指针使用方法 |  |
 | log | 日志log4cplus |  |
 | doxygen | doxygen文档 |  |
 | gtest | 单元测试 | C++11和cmake3.14，含单元测试覆盖率lcov |
-| [ITK](https://medical.wangyaqi.cn/#/graphics/itk) | 图像处理库 | 在Windows开发和远程调试Linux服务器的CMake程序 |
+| [ITK](https://medical.wangyaqi.cn/#/graphics/itk) | 图像处理库 <br> ITK指针使用方法 | CMakeSettings.json是在Windows开发和远程调试Linux服务器的CMake程序 |
 | libtest | 静态库动态库调用验证 | 模拟不同链接顺序，的情况 |
 
 ## moderncpp
@@ -121,7 +121,7 @@ gcc -fPIC -shared test1.c -o out/libtest1.so
 gcc -o out/test2.o -c test2.c
 ar -v -q out/libtest2.a out/test2.o
 gcc -fPIC -shared test2.c -o out/libtest2.so
- 
+
 echo 把不同版本的库按照不同顺序链接，优先链接动态库
 gcc -o out/main1 main.c -L bin -ltest1 -ltest2
 gcc -o out/main2 main.c -L bin -ltest2 -ltest1
