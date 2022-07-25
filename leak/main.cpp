@@ -58,28 +58,37 @@ Xyz_destructor classReturnUsage() {
   cout << "!!!!!!!!!!!!!!xyz.a address:" << &xyz.a << endl;
   cout << "!!!!!!!!!!!!!!xyz.p address:" << &xyz.p << endl;
   cout << "!!!!!!!!!!!!!!xyz.p[1]:" << xyz.p[1] << endl;
-  cout << "!!!!!!!!!!!!!!FINISH" << endl;
+  cout << "!!!!!!!!!!!!!!FINISH classReturnUsage" << endl;
   return xyz;
 }
 
 // 场景：new，泄露19字节(基于new的数组)
 // 解决：delete;
-void varLeak() {
+void basicLeak() {
   char* a = new char[10];   // 值不初始化
   char* b = new char[5]();  // 值初始化成0
   int* c = new int;
-  a[0] = 'x';
-  b[0] = 'y';
+  int d;
+  int32_t d32;
+  int64_t d64;
+  a = "andrew";
+  b[0] = 'x';
   *c = 99;
-  // cout << "!!!!!!!!!!!!!!a:" << a << endl;
-  // cout << "!!!!!!!!!!!!!!b:" << b << endl;
-  // cout << "!!!!!!!!!!!!!!*c:" << *c << endl;
+  cout << "!!!!!!!!!!!!!!a address:" << a << endl;
+  cout << "!!!!!!!!!!!!!!b address:" << b << endl;
+  cout << "!!!!!!!!!!!!!!c address:" << c << endl;
+  cout << "!!!!!!!!!!!!!!c sizeof:" << sizeof(c) << endl; // 64位系统指针是8字节
+  cout << "!!!!!!!!!!!!!!*c sizeof:" << sizeof(*c) << endl;
+  cout << "!!!!!!!!!!!!!!*c:" << *c << endl;
+  cout << "!!!!!!!!!!!!!!d sizeof:" << sizeof(d) << endl; // 一般系统默认是4字节
+  cout << "!!!!!!!!!!!!!!d32 sizeof:" << sizeof(d32) << endl;
+  cout << "!!!!!!!!!!!!!!d64 sizeof:" << sizeof(d64) << endl;
   // delete[] a;
   // delete[] b;
   // delete c;
 }
 
 int main(int argc, char* argv[]) {
-  varLeak();
+  basicLeak();
   return 0;
 }
