@@ -24,7 +24,8 @@ void classPropertyLeak() {
   xyz.p = new char[20];
 }
 
-// 场景：函数的返回值是类实例，如果调用方有用到，类实例在assign时不会析构和构造，待调用方用完后会析构。
+// 场景：函数的返回值是类实例A，如果调用方把A赋值给变量B【B是指针不算】则A不会析构，B和A是同一个地址，待调用方B无效后再析构。不赋值则A直接析构
+// 【原理上实例A在函数结束后就必须析构，此处应该是编译器优化结果】
 class Xyz_destructor {
   public:
     int* a;
@@ -43,31 +44,42 @@ Xyz_destructor _classReturnUsage() {
   *xyz.a = 123;
   xyz.p = new char[20];
   xyz.p[1] = 'a';
+  cout << "!!!!!!!!!!!!!!xyz address:" << &xyz << endl;
+  cout << "!!!!!!!!!!!!!!xyz.a address:" << &xyz.a << endl;
   cout << "!!!!!!!!!!!!!!xyz.p address:" << &xyz.p << endl;
   return xyz;
 }
-void classReturnUsage() {
+// Xyz_destructor* xyz2;
+Xyz_destructor classReturnUsage() {
   Xyz_destructor xyz = _classReturnUsage();
-  // 同函数内的地址和值
-  cout << "!!!!!!!!!!!!!!xyz.p[1]:" << xyz.p[1] << endl;
+  // xyz2 = &xyz;
+  // 返回实例的地址和值同函数(_classReturnUsage)内的实例
+  cout << "!!!!!!!!!!!!!!xyz address:" << &xyz << endl;
+  cout << "!!!!!!!!!!!!!!xyz.a address:" << &xyz.a << endl;
   cout << "!!!!!!!!!!!!!!xyz.p address:" << &xyz.p << endl;
+  cout << "!!!!!!!!!!!!!!xyz.p[1]:" << xyz.p[1] << endl;
+  cout << "!!!!!!!!!!!!!!FINISH" << endl;
+  return xyz;
 }
 
-// 场景：new，泄露15字节(基于new的数组)
-// 解决：delete[] a; delete[] q;
-void charLeak() {
+// 场景：new，泄露19字节(基于new的数组)
+// 解决：delete;
+void varLeak() {
   char* a = new char[10];   // 值不初始化
   char* b = new char[5]();  // 值初始化成0
+  int* c = new int;
   a[0] = 'x';
   b[0] = 'y';
-
-  cout << "!!!!!!!!!!!!!!a:" << a << endl;
-  cout << "!!!!!!!!!!!!!!b:" << b << endl;
+  *c = 99;
+  // cout << "!!!!!!!!!!!!!!a:" << a << endl;
+  // cout << "!!!!!!!!!!!!!!b:" << b << endl;
+  // cout << "!!!!!!!!!!!!!!*c:" << *c << endl;
   // delete[] a;
   // delete[] b;
+  // delete c;
 }
 
 int main(int argc, char* argv[]) {
-  classLeak();
+  varLeak();
   return 0;
 }
