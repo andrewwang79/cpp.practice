@@ -4,7 +4,7 @@
 ## 目录结构
 | 目录 | 内容 | 说明 |
 | :----: | -- | -- |
-| moderncpp | 反射机制(DynamicCreate.cpp) <br> 智能指针使用方法 <br> 内存泄漏的场景和示例 <br> | 现代C++特性 |
+| moderncpp | 反射机制(DynamicCreate.cpp) <br> 智能指针使用方法 <br> 内存泄漏的场景和示例 <br> | 现代C++特性，基于C++17 <br> 用cmake制作 |
 | global | 全局变量引用 |  |
 | libLoad | lib动态加载 | 含cmake install |
 | crash | 崩溃 |  |
@@ -17,9 +17,12 @@
 
 ## moderncpp
 ```
-mkdir -p out
-g++ -g -o out/moderncpp moderncpp/main.cpp
-./out/moderncpp
+cd moderncpp
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
+cd build && make -j$((`nproc`+1))
+cd ..
+./build/moderncpp
+./build/DynamicCreate
 ```
 
 ## global

@@ -84,7 +84,7 @@ void _template() {
 }
 // template end
 
-// misc begin
+// type_info begin
 template <typename T>
 auto print_type_info(const T& t) {
   if constexpr (std::is_floating_point<T>::value) {
@@ -93,37 +93,33 @@ auto print_type_info(const T& t) {
     return t + 0.001;
   }
 }
-int xyz(int a, int b, int c) { std::cout << a + b + c << std::endl; }
+void _type_info() {
+  std::cout << "--------_type_info--------" << std::endl;
+  std::cout << print_type_info(5) << std::endl;
+  std::cout << print_type_info(3.14) << std::endl;
+}
+// type_info end
+
+// bind begin
+int xyz(int a, int b, int c) {
+  std::cout << a + b + c << std::endl;
+  return 0;
+}
 
 class TestClass {
  public:
-  int xyz(int a, int b, int c) { std::cout << a * b * c << std::endl; }
+  int xyz(int a, int b, int c) {
+    std::cout << a + b + c << std::endl;
+    return 0;
+  }
 };
 
 namespace ABC {
 class TypeClass {};
 }  // namespace ABC
 
-void _misc() {
-  std::cout << "--------_misc--------" << std::endl;
-  std::cout << print_type_info(5) << std::endl;
-  std::cout << print_type_info(3.14) << std::endl;
-
-  std::vector<int> vec = {1, 2, 3, 4};
-  const std::vector<int>::iterator itr = std::find(vec.begin(), vec.end(), 2);
-  if (itr != vec.end()) {
-    *itr = 3;
-  }
-  for (auto element : vec) {
-    std::cout << element << std::endl;  // read only
-  }
-  for (auto& element : vec) {
-    element += 1;  // writeable
-  }
-  for (auto element : vec) {
-    std::cout << element << std::endl;  // read only
-  }
-
+void _bind() {
+  std::cout << "--------_bind--------" << std::endl;
   std::cout << "FN:" << std::endl;
   // 绑定函数。参数1使用占位符，参数2值是1，参数3值是2。使用时只需要输入参数1
   auto bindXyz = std::bind(xyz, std::placeholders::_1, 1, 2);
@@ -140,12 +136,26 @@ void _misc() {
 
   // typeid
   std::cout << typeid(ABC::TypeClass).name() << std::endl;  // N3ABC9TypeClassE
-  std::cout << abi::__cxa_demangle(typeid(ABC::TypeClass).name(), nullptr,
-                                   nullptr,
-                                   nullptr)
-            << std::endl;  // ABC::TypeClass
+  std::cout << abi::__cxa_demangle(typeid(ABC::TypeClass).name(), nullptr, nullptr, nullptr) << std::endl;  // ABC::TypeClass
 }
-// misc end
+// bind end
+
+// for begin
+void _for() {
+  std::cout << "--------_for--------" << std::endl;
+  std::vector<int> vec = {1, 2, 3, 4};
+  const std::vector<int>::iterator itr = std::find(vec.begin(), vec.end(), 2);
+  if (itr != vec.end()) {
+    *itr = 3;
+  }
+  for (auto element : vec) {
+    std::cout << element << std::endl;  // read only
+  }
+  for (auto& element : vec) {
+    element += 1;  // writeable
+  }
+}
+// for end
 
 // rvalue begin
 void reference(int& v) { std::cout << "左值引用" << std::endl; }
@@ -191,15 +201,67 @@ struct Foo {
 };
 
 void foo(std::shared_ptr<int> i) { (*i)++; }
-void _pointer() {
-  std::cout << "--------_pointer--------" << std::endl;
-  auto pointer = std::make_shared<int>(10);
-  foo(pointer);
-  std::cout << *pointer << std::endl;  // 11
 
-  auto pointeru = std::make_unique<Foo>();
-  pointeru->foo();
-  // auto pointer2 = pointeru;  // 非法
+class Xyz {
+  public:
+    int* a;
+    char* p;
+    std::string name;
+  Xyz(std::string _name) {
+    name = _name;
+  }
+  ~Xyz() {
+    std::cout << "!!!!!!!!!!!!!!Xyz destructor " << name << std::endl;
+    if (a != NULL)
+      delete a;
+    if (p != NULL)
+      delete[] p;
+  }
+};
+
+// 引用+1
+void _smart_pointer_fn_var(std::shared_ptr<Xyz> ptr) {
+  std::cout << "!!!!!!!!!!!!!!testcase3 ptr31 var use count : " << ptr.use_count() << std::endl;
+}
+// 引用不变
+void _smart_pointer_fn_ref(std::shared_ptr<Xyz>& ptr) {
+  std::cout << "!!!!!!!!!!!!!!testcase3 ptr31 ref use count : " << ptr.use_count() << std::endl;
+}
+
+void _smart_pointer() {
+  std::cout << "--------_smart_pointer--------" << std::endl;
+  auto int_pointer = std::make_shared<int>(10);
+  foo(int_pointer);
+  std::cout << *int_pointer << std::endl;  // 11
+
+  std::shared_ptr<char*> pChar = std::make_shared<char*>(new char[10]);
+
+  auto class_pointer = std::make_unique<Foo>();
+  class_pointer->foo();
+  // auto class_pointer2 = class_pointer; // 编译报错，需要用下面的move
+  auto class_pointer2 = std::move(class_pointer); // class_pointer2获得内存所有权，class_pointer此时等于nullptr
+
+  std::shared_ptr<Xyz> ptr11(new Xyz("11"));  // 引用计数为1
+	std::shared_ptr<Xyz> ptr12 = ptr11;   //  ptr12共享ptr11的指向对象，引用计数为2
+  std::cout << "!!!!!!!!!!!!!!testcase1 ptr11 A use count : " << ptr11.use_count() << std::endl; // 2
+  std::cout << "!!!!!!!!!!!!!!testcase1 ptr12 A use count : " << ptr12.use_count() << std::endl; // 2
+	ptr12.reset();  // ptr12置为空
+  std::cout << "!!!!!!!!!!!!!!testcase1 ptr11 B use count : " << ptr11.use_count() << std::endl; // 1
+  std::cout << "!!!!!!!!!!!!!!testcase1 ptr12 B use count : " << ptr12.use_count() << std::endl; // 0
+	ptr11.reset();  // ptr11置为空
+  std::cout << "!!!!!!!!!!!!!!testcase1 ptr11 C use count : " << ptr11.use_count() << std::endl; // 0
+  std::cout << "!!!!!!!!!!!!!!testcase1 ptr12 C use count : " << ptr12.use_count() << std::endl; // 0
+
+  std::shared_ptr<Xyz> ptr21(new Xyz("21"));
+	Xyz *ptr22 = new Xyz("22");
+  std::cout << "!!!!!!!!!!!!!!testcase2 ptr21 A use count : " << ptr21.use_count() << std::endl; // 1
+	ptr21.reset(ptr22);  // ptr3指向xyz4：会自动delete(ptr21)老指针，新指针(xyz22)会在出作用域后自动delete[因为套了智能指针]
+  std::cout << "!!!!!!!!!!!!!!testcase2 ptr21 A use count : " << ptr21.use_count() << std::endl; // 1
+  
+  std::shared_ptr<Xyz> ptr31(new Xyz("31"));
+  _smart_pointer_fn_var(ptr31);
+  std::cout << "!!!!!!!!!!!!!!testcase3 ptr31 after var use count : " << ptr31.use_count() << std::endl;
+  _smart_pointer_fn_ref(ptr31);
 }
 
 // pointer end
@@ -213,13 +275,17 @@ void _thread() {
 // thread end
 
 int main() {
-  _misc();
+  _bind();
+  _type_info();
+  _for();
   _nullptr();
   _typedef();
   _template();
   _rvalue();
   _lambda();
-  _pointer();
+  _smart_pointer();
   _thread();
+
+  std::cout << "press ENTER key to quit" << std::endl;
   getchar();
 }
