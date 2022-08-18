@@ -1,5 +1,6 @@
 #include <cxxabi.h>
 
+#include <string.h>
 #include <algorithm>
 #include <cstddef>
 #include <functional>
@@ -200,8 +201,6 @@ struct Foo {
   void foo() { std::cout << "Foo::foo" << std::endl; }
 };
 
-void foo(std::shared_ptr<int> i) { (*i)++; }
-
 class Xyz {
   public:
     int* a;
@@ -228,19 +227,41 @@ void _smart_pointer_fn_ref(std::shared_ptr<Xyz>& ptr) {
   std::cout << "!!!!!!!!!!!!!!testcase3 ptr31 ref use count : " << ptr.use_count() << std::endl;
 }
 
+void foo(std::shared_ptr<int> i) { (*i)++; }
+void assignSmartpoint(std::shared_ptr<char*>& p) {
+  int len = 128;
+  // 赋值已有智能指针
+  std::shared_ptr<char*> char1 = std::make_shared<char*>(new char[len]);
+  char* buff1 = *char1.get();
+  buff1[0] = 'A';
+  buff1[1] = 0;
+  p = char1;
+  std::cout << "!!!!!!!!!!!!!!char1 use count : " << char1.use_count() << std::endl; // 2
+  std::cout << "!!!!!!!!!!!!!!p value : " << *p << std::endl;
+
+  // 赋值已有指针
+  char * buff2 = new char[len];
+  buff2[0] = 'B';
+  buff2[1] = 0;
+  p = std::make_shared<char*>(buff2);
+  std::cout << "!!!!!!!!!!!!!!pCharInner use count : " << char1.use_count() << std::endl; // 1
+  std::cout << "!!!!!!!!!!!!!!p value : " << *p << std::endl;
+}
+
 void _smart_pointer() {
   std::cout << "--------_smart_pointer--------" << std::endl;
+  std::cout << "--------_smart_pointer-shared--------" << std::endl;
   auto int_pointer = std::make_shared<int>(10);
   foo(int_pointer);
   std::cout << *int_pointer << std::endl;  // 11
 
-  std::shared_ptr<char*> pChar = std::make_shared<char*>(new char[10]);
+  // 智能指针进函数赋值，引用参数
+  std::shared_ptr<char*> pChar2;
+  assignSmartpoint(pChar2);
+  std::cout << "!!!!!!!!!!!!!!pChar2 use count : " << pChar2.use_count() << std::endl; // 1
+  std::cout << "!!!!!!!!!!!!!!pChar2 value : " << *pChar2 << std::endl;
 
-  auto class_pointer = std::make_unique<Foo>();
-  class_pointer->foo();
-  // auto class_pointer2 = class_pointer; // 编译报错，需要用下面的move
-  auto class_pointer2 = std::move(class_pointer); // class_pointer2获得内存所有权，class_pointer此时等于nullptr
-
+  // 计数 begin
   std::shared_ptr<Xyz> ptr11(new Xyz("11"));  // 引用计数为1
 	std::shared_ptr<Xyz> ptr12 = ptr11;   //  ptr12共享ptr11的指向对象，引用计数为2
   std::cout << "!!!!!!!!!!!!!!testcase1 ptr11 A use count : " << ptr11.use_count() << std::endl; // 2
@@ -255,13 +276,21 @@ void _smart_pointer() {
   std::shared_ptr<Xyz> ptr21(new Xyz("21"));
 	Xyz *ptr22 = new Xyz("22");
   std::cout << "!!!!!!!!!!!!!!testcase2 ptr21 A use count : " << ptr21.use_count() << std::endl; // 1
-	ptr21.reset(ptr22);  // ptr3指向xyz4：会自动delete(ptr21)老指针，新指针(xyz22)会在出作用域后自动delete[因为套了智能指针]
+	ptr21.reset(ptr22);  // ptr21指向ptr22：会自动delete(ptr21)老指针，新指针(xyz22)会在出作用域后自动delete[因为套了智能指针]
   std::cout << "!!!!!!!!!!!!!!testcase2 ptr21 A use count : " << ptr21.use_count() << std::endl; // 1
   
   std::shared_ptr<Xyz> ptr31(new Xyz("31"));
   _smart_pointer_fn_var(ptr31);
   std::cout << "!!!!!!!!!!!!!!testcase3 ptr31 after var use count : " << ptr31.use_count() << std::endl;
   _smart_pointer_fn_ref(ptr31);
+  // 计数 end
+
+  std::cout << "--------_smart_pointer-unique--------" << std::endl;
+  auto class_pointer = std::make_unique<Foo>();
+  class_pointer->foo();
+  // auto class_pointer2 = class_pointer; // 编译报错，需要用下面的move
+  auto class_pointer2 = std::move(class_pointer); // class_pointer2获得内存所有权，class_pointer此时等于nullptr
+
 }
 
 // pointer end
@@ -274,7 +303,11 @@ void _thread() {
 }
 // thread end
 
+#define report std::cout << "exception TODO " << __FILE__ << __LINE__ << std::endl;
+
 int main() {
+  report;
+
   _bind();
   _type_info();
   _for();
