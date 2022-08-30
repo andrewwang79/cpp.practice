@@ -5,7 +5,7 @@
 | 目录 | 内容 | 说明 |
 | :----: | -- | -- |
 | moderncpp | 反射机制(DynamicCreate.cpp) <br> 智能指针使用方法 <br> 内存泄漏的场景和示例 <br> | 现代C++特性，基于C++17 <br> 用cmake制作 |
-| global | 全局变量引用 |  |
+| misc | 全局变量引用, 静态变量 |  |
 | libLoad | lib动态加载 | 含cmake install |
 | crash | 崩溃 |  |
 | leak | 内存泄漏的场景和示例 <br> 指针使用方法 |  |
@@ -25,11 +25,11 @@ cd ..
 ./build/DynamicCreate
 ```
 
-## global
+## misc
 ```
 mkdir -p out
-gcc -o out/global global/main_support.c global/main.c
-./out/global
+gcc -o out/misc misc/main_support.c misc/main.c
+./out/misc
 ```
 
 ## libLoad
