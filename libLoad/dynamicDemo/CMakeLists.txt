@@ -7,4 +7,4 @@ FILE(GLOB SOURCE_FILES "*.cpp")
 
 add_executable(${TARGET_NAME} ${SOURCE_FILES})
 
-target_link_libraries(${PROJECT_NAME} ${CMAKE_DL_LIBS}) # 动态加载so的库libdl.so，相当于gcc -ldl
+target_link_libraries(${PROJECT_NAME} ${CMAKE_DL_LIBS}) # CMAKE_DL_LIBS值是dl，相当于动态加载动态库libdl.so
