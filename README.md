@@ -14,8 +14,8 @@
 | log | 日志log4cplus |  |
 | doxygen | doxygen文档 |  |
 | gtest | 单元测试 | C++11和cmake3.14，含单元测试覆盖率lcov |
-| [ITK](https://medical.wangyaqi.cn/#/graphics/itk) | 图像处理库 <br> ITK指针使用方法 | CMakeSettings.json是在Windows开发和远程调试Linux服务器的CMake程序 |
-| libtest | 静态库和动态库的分析验证：链接顺序，依赖的多个库导出了相同符号时的冲突分析 | [参考来源](https://blog.csdn.net/sepnineth/article/details/49456889) |
+| [ITK](https://medical.wangyaqi.cn/#/graphics/itk) | 图像处理库 <br> ITK指针使用方法 | CMakeSettings.json是在Windows开发和远程调试Linux服务器的CMake文件 |
+| [libtest](libtest/README.md) | 静态库和动态库的分析验证：链接顺序，依赖的多个库导出了相同符号时的冲突分析 | [参考来源](https://blog.csdn.net/sepnineth/article/details/49456889) |
 
 ## moderncpp
 ```
@@ -116,86 +116,4 @@ module_name=itk
 cd ${prj_path}
 rm -rf build && mkdir build && cd build && conan install ../conanfile.txt -s arch=x86_64 -s os=Linux -r cloud --update && cd ..
 cmake -S . -B build && cmake --build build -j$((`nproc`+1)) && cd build/ && ./bin/${module_name}
-```
-
-## libtest
-* 以下提及的符号默认都是导出的(extern)
-
-### 文件说明
-
-| 项 | 说明 |
-| - | - |
-| test.h | 被测试库的头文件：覆盖test1.c和test2.c |
-| test1.c/test2.c | 被测试库：有2个相同符号的静态函数(实现不同)，1个相同符号的静态变量(值不同) |
-| main.c | 测试程序 |
-
-### 分析验证结果
-* [编译原理](https://cpp.wangyaqi.cn/#/material/compile)
-
-| 测试用例 | 相同符号运行时的使用源 | 说明 |
-| - | - | - |
-| 1. 程序链接libtest1.so，libtest2.so | 使用先链接的动态库libtest1.so |  |
-| 2. 程序链接libtest1.a，libtest2.a | 链接失败 | 错误信息：有多个相同符号存在，无法链接 |
-| 3. 程序链接libtest1.a，libtest2.so | 使用静态库libtest1.a | 无视链接顺序 |
-| 4. 程序链接libtest2.so，libtest1.a | 使用静态库libtest1.a | 无视链接顺序 |
-
-### 编译
-```
-cd libtest
-clear && rm -rf out/*
-
-echo compile test1.c to libtest1.a and libtest1.so
-gcc -o out/test1.o -c test1.c && ar -v -q out/libtest1.a out/test1.o
-gcc -fPIC -shared test1.c -o out/libtest1.so
-
-echo compile test2.c to libtest2.a and libtest2.so
-gcc -o out/test2.o -c test2.c && ar -v -q out/libtest2.a out/test2.o
-gcc -fPIC -shared test2.c -o out/libtest2.so
-
-export LD_LIBRARY_PATH=./out # cp -f out/*.so /usr/lib/
-```
-
-### 测试
-* 测试用例1
-```
-echo compile main.c to main1, link libtest1.so first
-gcc -o out/main1 main.c -L out -ltest1 -ltest2
-ldd out/main1
-echo compile main.c to main1, link libtest2.so first
-gcc -o out/main2 main.c -L out -ltest2 -ltest1
-ldd out/main2
-
-echo execute should use libtest1.so, output is "add=7" and "testVal=11" and "round2 : testInnerVal = 112"
-./out/main1
-echo execute should use libtest2.so, output is "add=10" and "testVal=22" and "round2 : testInnerVal = 223"
-./out/main2
-```
-
-* 测试用例2
-```
-rm out/libtest*.so
-
-echo link fail
-gcc -o out/main1 main.c -L out -ltest1 -ltest2
-gcc -o out/main2 main.c -L out -ltest2 -ltest1
-```
-
-* 测试用例3
-```
-echo link libtest1.a and libtest2.so
-rm out/libtest1.so
-gcc -o out/main1 main.c -L out -ltest1 -ltest2
-ldd out/main1
-echo execute should use libtest1.a, output is "add=7" and "testVal=11" and "round2 : testInnerVal = 112"
-./out/main1
-```
-
-* 测试用例4
-```
-echo link libtest1.so and libtest2.a
-rm out/libtest2.so
-gcc -o out/main1 main.c -L out -ltest1 -ltest2
-ldd out/main1
-echo execute should use libtest2.a, output is "add=10" and "testVal=22" and "round2 : testInnerVal = 223"
-./out/main1
 ```

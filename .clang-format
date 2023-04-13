@@ -2,7 +2,7 @@
 # clang-format -i --style=file <file>
 Language:       Cpp
 BasedOnStyle:   Google
-ColumnLimit:    160
+ColumnLimit:    200
 AllowShortBlocksOnASingleLine: true
 DerivePointerAlignment: false
 PointerAlignment: Left
