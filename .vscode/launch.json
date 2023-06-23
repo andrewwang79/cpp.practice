@@ -8,7 +8,23 @@
             "name": "moderncpp(Linux)",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceRoot}/build/moderncpp/moderncpp",
+            "program": "${workspaceRoot}/moderncpp/build/moderncpp",
+            "args": [],
+            "cwd": "${workspaceRoot}",
+            "stopAtEntry": false,
+            "setupCommands": [
+                {
+                    "description": "为 gdb 启用整齐打印",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "Executor(Linux)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceRoot}/moderncpp/build/Executor",
             "args": [],
             "cwd": "${workspaceRoot}",
             "stopAtEntry": false,

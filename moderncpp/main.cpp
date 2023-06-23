@@ -244,7 +244,7 @@ void assignSmartpoint(std::shared_ptr<char*>& p) {
   buff2[0] = 'B';
   buff2[1] = 0;
   p = std::make_shared<char*>(buff2);
-  std::cout << "!!!!!!!!!!!!!!pCharInner use count : " << char1.use_count() << std::endl; // 1
+  std::cout << "!!!!!!!!!!!!!!char1 use count : " << char1.use_count() << std::endl; // 1
   std::cout << "!!!!!!!!!!!!!!p value : " << *p << std::endl;
 }
 
