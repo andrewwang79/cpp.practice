@@ -18,93 +18,146 @@ class ExecResult {
 };
 
 template <typename T>
-class ExecWrapper {
- public:
-  ExecWrapper(std::function<ExecResult<T>()> func) { func_ = func; }
-
-  void run() { asyncFunc_ = std::async(std::launch::async, func_); }
-
-  // 等待异步任务完成，并获取返回值
-  ExecResult<T> wait() { return asyncFunc_.get(); }
+class ExecTask {
+  typedef std::function<ExecResult<T>()> TaskFn;
 
  public:
-  ExecWrapper(const ExecWrapper<T>& other) {}
+  ExecTask(TaskFn _func, const std::string& _code) {
+    func = _func;
+    code = _code;
+  }
 
-  ExecWrapper<T>& operator=(const ExecWrapper<T>& other) { return *this; }
+  ExecTask(const ExecTask<T>& other) {
+    func = other.func;
+    code = other.code;
+  }
 
- private:
-  std::future<ExecResult<T>> asyncFunc_;
-  std::function<ExecResult<T>()> func_;
+ public:
+  ExecTask<T>& operator=(const ExecTask<T>& other) { return *this; }
+
+ public:
+  TaskFn func;
+  std::string code;
 };
 
 template <typename T>
 class ExecPool {
+  typedef std::function<void(const std::string&, const ExecResult<T>&)> TaskCallbackFn;
+  typedef std::function<void()> TimeoutCallbackFn;
+
  public:
-  std::vector<ExecWrapper<T>> wrappers;
-
-  std::function<void(const ExecResult<T>&)> itemCallback;
-  int timeoutMS;  // 毫秒
-  std::function<void()> timeoutCallback;
-
-  std::chrono::time_point<std::chrono::system_clock> start_time;
-
-  ExecPool(const std::vector<ExecWrapper<T>>& _wrappers, std::function<void(const ExecResult<T>&)> _itemCallback, int _timeoutMS, std::function<void()> _timeoutCallback) {
-    wrappers = _wrappers;
-    itemCallback = _itemCallback;
+  ExecPool(const std::vector<ExecTask<T>>& _tasks, TaskCallbackFn _taskCallback, int _timeoutMS, TimeoutCallbackFn _timeoutCallback) {
+    tasks = _tasks;
+    taskCallback = _taskCallback;
     timeoutMS = _timeoutMS;
-    timeoutCallback = _timeoutCallback;
+    timeoutCallback_ = _timeoutCallback;
+    stop_ = false;
   }
 
   void run() {
-    start_time = std::chrono::system_clock::now();
-    std::thread([this]() {
-      std::this_thread::sleep_for(std::chrono::milliseconds(timeoutMS));
-      timeoutCallback();
-    }).detach();
-    for (auto& wrapper : wrappers) wrapper.run();
+    startTime_ = std::chrono::system_clock::now();
+    // 执行(设置定时任务)任务，每10毫秒检查是否要终止
+    std::thread timeoutThread([this]() {
+      std::cout << "timeout begin" << std::endl;
+      auto start_time = std::chrono::system_clock::now();
+      while (!stop_ && std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start_time).count() < timeoutMS) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+      }
+      if (stop_ == false) timeoutCallback_();
+      std::cout << "timeout end" << std::endl;
+    });
 
-    std::vector<std::future<void>> futures;
-    for (auto& wrapper : wrappers) {
-      futures.emplace_back(std::async(std::launch::async, [&]() {
-        ExecResult<T> result = wrapper.wait();
-        if (result.retCode == 0) {
-          successItemCount_++;
-          itemCallback(result);
-        } else
-          failItemCount_++;
+    // 执行所有任务
+    // TODO future无法终止，可以改造成thread来终止，需要业务函数支持变量stop。业务函数有几个输入和返回，有中途计算好的返回吗？【看是否使用future】
+    for (ExecTask<T>& task : tasks) {
+      std::cout << "task begin : " << task.code << std::endl;
+      futures_.emplace_back(std::async(std::launch::async, [&]() {
+        std::cout << "exec begin : " << task.code << std::endl;
+        ExecResult<T> result = task.func();
+        std::cout << "exec return : " << task.code << std::endl;
+        onTaskExecuted(task.code, result);
+        std::cout << "exec end : " << task.code << std::endl;
       }));
+      std::cout << "task end : " << task.code << std::endl;
     }
 
-    // 等待所有异步任务完成
-    for (auto& future : futures) { future.wait(); }
+    // 同步等待所有任务完成
+    std::cout << "futures ALL begin" << std::endl;
+    for (auto& future : futures_) {
+      std::cout << "futures begin" << std::endl;
+      future.get();
+      std::cout << "futures end" << std::endl;
+    }
+    if (timeoutThread.joinable()) { timeoutThread.join(); }
+    std::cout << "futures ALL end" << std::endl;
   }
 
-  int getSuccessItemCount() { return successItemCount_; }
+  void stop() { stop_ = true; }
+
+  void onTaskExecuted(const std::string& taskCode, const ExecResult<T>& result) {
+    if (result.retCode == 0) {
+      successTaskCount_++;
+      taskCallback(taskCode, result);
+    } else
+      failTaskCount_++;
+  }
+
+  // 执行时间(毫秒)
+  double getRunMS() const {
+    auto elapsed = std::chrono::system_clock::now() - startTime_;
+    return std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count();
+  }
+
+  int getTaskCount() { return tasks.size(); }
+
+  int getSuccessTaskCount() { return successTaskCount_; }
+
+ public:
+  std::vector<ExecTask<T>> tasks;  // 所有的任务
+  TaskCallbackFn taskCallback;     // 每个任务执行完毕后的回调函数
+  int timeoutMS;                   // 定时器毫秒
 
  private:
-  int successItemCount_ = 0;
-  int failItemCount_ = 0;
+  std::vector<std::future<void>> futures_;
+  std::chrono::time_point<std::chrono::system_clock> startTime_;  // 执行开始时间
+  std::atomic_bool stop_;                                         // 执行停止
+
+  std::function<void()> timeoutCallback_;  //  定时器的回调函数
+
+  int successTaskCount_ = 0;  // 成功的任务数
+  int failTaskCount_ = 0;     // 失败的任务数
 };
 
 int main() {
-  std::vector<ExecWrapper<double>> wrappers;
-  wrappers.push_back(ExecWrapper<double>([]() {
-    std::cout << "Wrapper 1 begin" << std::endl;
-    std::this_thread::sleep_for(std::chrono::seconds(7));
-    std::cout << "Wrapper 2 end" << std::endl;
-    return ExecResult<double>(0, 1.0);
-  }));
-  wrappers.push_back(ExecWrapper<double>([]() {
-    std::cout << "Wrapper 2 begin" << std::endl;
-    std::this_thread::sleep_for(std::chrono::seconds(3));
-    std::cout << "Wrapper 2 end" << std::endl;
-    return ExecResult<double>(0, 1.2);
-  }));
+  std::vector<ExecTask<double>> tasks;
+  tasks.push_back(ExecTask<double>(
+      []() {
+        std::cout << "task 1 begin" << std::endl;
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+        std::cout << "task 1 end" << std::endl;
+        return ExecResult<double>(0, 1.0);
+      },
+      "1"));
+  tasks.push_back(ExecTask<double>(
+      []() {
+        std::cout << "task 2 begin" << std::endl;
+        std::this_thread::sleep_for(std::chrono::seconds(2));
+        std::cout << "task 2 end" << std::endl;
+        return ExecResult<double>(0, 1.2);
+      },
+      "2"));
 
+  std::cout << "pool create" << std::endl;
   ExecPool<double> pool(
-      wrappers, [&](const ExecResult<double>& er) { std::cout << "Executed task with result: " << er.result << std::endl; }, 5000,
-      [&]() { std::cout << "timeout: " << pool.getSuccessItemCount() << std::endl; });
+      tasks,
+      [&](const std::string& code, const ExecResult<double>& er) {
+        std::cout << "Executed task(" << code << ") with result: " << er.result << std::endl;
+        // pool.stop();
+      },
+      2000, [&]() { std::cout << "timeout: " << pool.getSuccessTaskCount() << std::endl; });
+  std::cout << "pool run begin" << std::endl;
   pool.run();
+  std::cout << "pool run end" << std::endl;
 
   return 0;
 }
