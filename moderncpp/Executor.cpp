@@ -45,6 +45,25 @@ void test() {
         return ExecResult<double>(0, 1.2);
       },
       "2", true));
+  tasks.push_back(ExecTask<double>(
+      [](const std::atomic_bool& stop) {
+        std::cout << "[Executor-taskfn] task 3 begin" << std::endl;
+
+        auto start_time = std::chrono::system_clock::now();
+        int runMS = 2500;
+        int sleepMS = 10;
+        for (int i = 0; i < runMS / sleepMS; i++) {
+          if (stop) {
+            std::cout << "[Executor-taskfn] task 3 end by stop" << std::endl;
+            return ExecResult<double>(1, 0);
+          }
+          std::this_thread::sleep_for(std::chrono::milliseconds(sleepMS));
+        }
+
+        std::cout << "[Executor-taskfn] task 3 end" << std::endl;
+        return ExecResult<double>(0, 1.2);
+      },
+      "3", false));
 
   ExecPool<double> pool(
       tasks,

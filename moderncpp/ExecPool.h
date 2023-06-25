@@ -44,10 +44,12 @@ class ExecTask {
 
   void run(TaskExecutedFn tef) {
     thread_ = std::thread([this, tef]() {
-      std::cout << "[Executor-ExecTask] task(" << code << ") begin " << std::endl;
-      result = func(stop_);
-      if (!stop_) tef(code, result);
-      std::cout << "[Executor-ExecTask] task(" << code << ") end " << std::endl;
+      std::cout << "[Executor-ExecTask] task(" << code << ") begin" << std::endl;
+      try {
+        result = func(stop_);
+        if (!detach || (detach && !stop_)) tef(code, result);  // detach&&stop时，tef可能不存在
+      } catch (...) { std::cout << "[Executor-ExecTask] task(" << code << ") exception" << std::endl; }
+      std::cout << "[Executor-ExecTask] task(" << code << ") end" << std::endl;
     });
   }
 
@@ -117,6 +119,7 @@ class ExecPool {
 
   void stop() {
     std::cout << "[Executor-pool] stop" << std::endl;
+    if (stop_) return;
     stop_ = true;
     for (ExecTask<T>& task : tasks) task.stop();
   }
