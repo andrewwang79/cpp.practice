@@ -21,6 +21,15 @@
             ]
         },
         {
+            "name": "Executor(Windows)",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceRoot}/moderncpp/build/Debug/Executor.exe",
+            "cwd": "${workspaceRoot}/moderncpp/build/Debug/",
+            "args": [],
+            "stopAtEntry": false
+        },
+        {
             "name": "Executor(Linux)",
             "type": "cppdbg",
             "request": "launch",

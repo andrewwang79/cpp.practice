@@ -6,14 +6,15 @@ set(TARGET_NAME "moderncpp")
 project(${TARGET_NAME})
 
 # moderncpp
-add_executable(${TARGET_NAME} main.cpp)
-
-# DynamicCreate
 if(UNIX)
+    add_executable(${TARGET_NAME} main.cpp)
     TARGET_LINK_LIBRARIES(${TARGET_NAME} pthread)
 endif()
 
-add_executable(DynamicCreate DynamicCreate.cpp)
+# DynamicCreate
+if(UNIX)
+    add_executable(DynamicCreate DynamicCreate.cpp)
+endif()
 
 # Executor
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
