@@ -1,12 +1,12 @@
 #include <algorithm>
 #include <chrono>
+#include <ctime>
 #include <future>
 #include <iostream>
 #include <sstream>
+#include <string>
 #include <thread>
 #include <vector>
-#include <string>
-#include <ctime>
 
 std::string _spec_time(const std::chrono::time_point<std::chrono::system_clock>& tm) {
   auto now_c = std::chrono::system_clock::to_time_t(tm);
@@ -119,6 +119,13 @@ class ExecTask {
   std::chrono::time_point<std::chrono::system_clock> endTime_;    // 执行结束时间
 };
 
+/**
+ * @brief 任务池，支持两种任务：
+ * 标准任务：pool里有N个。执行到结束会自动退出，任务自身可以通过轮询监听pool的stop标志位来提前停止自己
+ * 超时任务：pool里只有1个。结束时不会自动停止pool的标准任务，可以代码让pool退出[pool.stop();]
+ *
+ * @tparam T 所有任务的数据结构
+ */
 template <typename T>
 class ExecPool {
   typedef std::function<void(const std::string&, const ExecResult<T>&)> TaskCallbackFn;
@@ -127,6 +134,14 @@ class ExecPool {
  public:
   ExecPool(){};
 
+  /**
+   * @brief Construct a new Exec Pool object
+   *
+   * @param _tasks 标准任务列表
+   * @param _taskCallback 标准任务回调函数
+   * @param _timeoutMS 超时任务毫秒数
+   * @param _timeoutCallback 超时任务回调函数
+   */
   ExecPool(const std::vector<ExecTask<T>>& _tasks, TaskCallbackFn _taskCallback, int _timeoutMS, TimeoutCallbackFn _timeoutCallback) { init(_tasks, _taskCallback, _timeoutMS, _timeoutCallback); }
 
   void init(const std::vector<ExecTask<T>>& _tasks, TaskCallbackFn _taskCallback, int _timeoutMS, TimeoutCallbackFn _timeoutCallback) {
@@ -156,44 +171,12 @@ class ExecPool {
     std::cout << "[Executor-pool] run end" << std::endl << getStatus();
   }
 
- private:
-  void runTimeoutTask() {
-    timeoutTask.init([this](const std::atomic_bool& stop) {
-      // 执行(设置定时任务)任务，每100毫秒检查是否要终止[sleep时间太小时，线程切换次数增多，会严重影响总时间]
-      std::cout << "[Executor-pool] task timeout schedule begin" << std::endl;
-      int sleepMS = 100;
-      for (int i = 0; i < timeoutMS / sleepMS; i++) {
-        if (stop) {
-          std::cout << "[Executor-pool] task timeout schedule end by stop" << std::endl;
-          return ExecResult<bool>(0, false);
-        }
-        std::this_thread::sleep_for(std::chrono::milliseconds(sleepMS));
-      }
-      std::cout << "[Executor-pool] task timeout schedule end" << std::endl;
-      return ExecResult<bool>(0, true);
-    }, "TIMEOUT", false);
-    timeoutTask.run([this](const std::string& code, const ExecResult<bool>& er) {
-      std::cout << "[Executor-pool] task timeout begin" << std::endl;
-      timeoutCallback_();
-      std::cout << "[Executor-pool] task timeout end : time[" << getCurrentRunMS() << "]" << std::endl;
-    });
-  }
-
- public:
   void stop() {
     std::cout << "[Executor-pool] stop" << std::endl;
     if (stop_) return;
     stop_ = true;
     timeoutTask.stop();
     for (ExecTask<T>& task : tasks) task.stop();
-  }
-
-  void onTaskExecuted(const std::string& taskCode, const ExecResult<T>& result) {
-    if (result.retCode == 0)
-      successTaskCount_++;
-    else
-      failTaskCount_++;
-    taskCallback(taskCode, result);
   }
 
   // 执行总耗时(毫秒)
@@ -222,6 +205,39 @@ class ExecPool {
     for (ExecTask<T>& task : tasks) ss << "  " << task.getStatus() << std::endl;
     ss << "  timeout task : " << timeoutTask.getStatus() << std::endl;
     return ss.str();
+  }
+
+ private:
+  void runTimeoutTask() {
+    timeoutTask.init(
+        [this](const std::atomic_bool& stop) {
+          // 执行(设置定时任务)任务，每100毫秒检查是否要终止[sleep时间太小时，线程切换次数增多，会严重影响总时间]
+          std::cout << "[Executor-pool] task timeout schedule begin" << std::endl;
+          int sleepMS = 100;
+          for (int i = 0; i < timeoutMS / sleepMS; i++) {
+            if (stop) {
+              std::cout << "[Executor-pool] task timeout schedule end by stop" << std::endl;
+              return ExecResult<bool>(0, false);
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(sleepMS));
+          }
+          std::cout << "[Executor-pool] task timeout schedule end" << std::endl;
+          return ExecResult<bool>(0, true);
+        },
+        "TIMEOUT", false);
+    timeoutTask.run([this](const std::string& code, const ExecResult<bool>& er) {
+      std::cout << "[Executor-pool] task timeout begin" << std::endl;
+      timeoutCallback_();
+      std::cout << "[Executor-pool] task timeout end : time[" << getCurrentRunMS() << "]" << std::endl;
+    });
+  }
+
+  void onTaskExecuted(const std::string& taskCode, const ExecResult<T>& result) {
+    if (result.retCode == 0)
+      successTaskCount_++;
+    else
+      failTaskCount_++;
+    taskCallback(taskCode, result);
   }
 
  public:
