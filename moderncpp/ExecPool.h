@@ -8,6 +8,10 @@
 #include <thread>
 #include <vector>
 
+/**
+ * log statement prefix: [Executor-
+ */
+
 std::string _spec_time(const std::chrono::time_point<std::chrono::system_clock>& tm) {
   auto now_c = std::chrono::system_clock::to_time_t(tm);
 
@@ -71,14 +75,23 @@ class ExecTask {
     startTime_ = std::chrono::system_clock::now();
     thread_ = std::thread([this, tef]() {
       try {
-        std::cout << "[Executor-ExecTask] task(" << code << ") begin" << std::endl;
+        std::cout << "[Executor-ExecTask] task(" << code << ") end : fn begin" << std::endl;
         result = func(stopFlag);
         finish = true;
         endTime_ = std::chrono::system_clock::now();
-        std::cout << "[Executor-ExecTask] task(" << code << ") end : " << getStatus() << std::endl;
+        std::cout << "[Executor-ExecTask] task(" << code << ") end : fn end" << std::endl;
         // 完成后的处理
-        if (!detach || (detach && !stopFlag)) tef(code, result);  // detach&&stop时，tef可能不存在
-      } catch (...) { std::cout << "[Executor-ExecTask] task(" << code << ") end exception" << std::endl; }
+        bool handleAfterComplete = (!detach || (detach && !stopFlag));
+        if (handleAfterComplete) {
+          if (tef) {  // detach&&stop时，tef可能不存在
+            std::cout << "[Executor-ExecTask] task(" << code << ") end : tef begin" << std::endl;
+            tef(code, result);
+            std::cout << "[Executor-ExecTask] task(" << code << ") end : tef end" << std::endl;
+          } else
+            std::cout << "[Executor-ExecTask] task(" << code << ") end : tef is null" << std::endl;
+        }
+      } catch (...) { std::cerr << "[Executor-ExecTask] task(" << code << ") end exception" << std::endl; }
+      std::cout << "[Executor-ExecTask] task(" << code << ") end : " << getStatus() << std::endl;
     });
   }
 
@@ -86,9 +99,15 @@ class ExecTask {
     if (thread_.joinable()) thread_.join();
   }
 
-  void stop() {
-    stopFlag.store(true);
-    if (detach) thread_.detach();
+  bool stop() {
+    try {
+      stopFlag.store(true);
+      if (detach && thread_.joinable()) thread_.detach();
+      return true;
+    } catch (const std::system_error& e) { std::cerr << "[Executor-ExecTask] task(" << code << ") stop end system_error : " << e.what() << std::endl; } catch (const std::exception& e) {
+      std::cerr << "[Executor-ExecTask] task(" << code << ") stop end exception : " << e.what() << std::endl;
+    } catch (...) { std::cerr << "[Executor-ExecTask] task(" << code << ") stop end ..." << std::endl; }
+    return false;
   }
 
   // 执行总耗时(毫秒)
@@ -120,7 +139,7 @@ class ExecTask {
 };
 
 /**
- * @brief 任务池，支持两种任务：
+ * @brief 任务池，支持多个任务，两种类型：
  * 标准任务：pool里有N个。执行到结束会自动退出，任务自身可以通过轮询监听pool的stop标志位来提前停止自己
  * 超时任务：pool里只有1个。结束时不会自动停止pool的标准任务，可以代码让pool退出[pool.stop();]
  *
@@ -161,22 +180,33 @@ class ExecPool {
     for (ExecTask<T>& task : tasks) task.run([this](const std::string& code, const ExecResult<T>& er) { onTaskExecuted(code, er); });
 
     // 同步等待所有任务完成
-    std::cout << "[Executor-pool] task wait begin" << std::endl;
+    std::cout << "[Executor-pool] task join begin" << std::endl;
     for (ExecTask<T>& task : tasks) task.join();
     if (!timeoutTask.finish) timeoutTask.stop();  // 确保所有任务都执行完毕时，定时器任务能停止
     timeoutTask.join();
-    std::cout << "[Executor-pool] task wait end" << std::endl;
+    std::cout << "[Executor-pool] task join end" << std::endl;
 
     endTime_ = std::chrono::system_clock::now();
     std::cout << "[Executor-pool] run end" << std::endl << getStatus();
   }
 
-  void stop() {
+  bool stop() {
     std::cout << "[Executor-pool] stop" << std::endl;
     if (stop_) return;
     stop_ = true;
-    timeoutTask.stop();
-    for (ExecTask<T>& task : tasks) task.stop();
+
+    std::cout << "[Executor-pool] timeoutTask stop begin" << std::endl;
+    bool timeoutTaskStopResult = timeoutTask.stop();
+    std::cout << "[Executor-pool] timeoutTask stop end : " << timeoutTaskStopResult << std::endl;
+
+    bool stopResult = true;
+    bool for (ExecTask<T>& task : tasks) {
+      std::cout << "[Executor-pool] task stop begin(" << task.code << ")" << std::endl;
+      bool taskStopResult = task.stop();
+      std::cout << "[Executor-pool] task stop end(" << task.code << ") : " << taskStopResult << std::endl;
+      if (!taskStopResult) stopResult = false;
+    }
+    return stopResult;
   }
 
   // 执行总耗时(毫秒)

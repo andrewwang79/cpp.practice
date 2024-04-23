@@ -21,19 +21,19 @@
             ]
         },
         {
-            "name": "Executor(Windows)",
+            "name": "ExecPoolTest(Windows)",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceRoot}/moderncpp/build/Debug/Executor.exe",
+            "program": "${workspaceRoot}/moderncpp/build/Debug/ExecPoolTest.exe",
             "cwd": "${workspaceRoot}/moderncpp/build/Debug/",
             "args": [],
             "stopAtEntry": false
         },
         {
-            "name": "Executor(Linux)",
+            "name": "ExecPoolTest(Linux)",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceRoot}/moderncpp/build/Executor",
+            "program": "${workspaceRoot}/moderncpp/build/ExecPoolTest",
             "args": [],
             "cwd": "${workspaceRoot}",
             "stopAtEntry": false,

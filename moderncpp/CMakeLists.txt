@@ -16,10 +16,10 @@ if(UNIX)
     add_executable(DynamicCreate DynamicCreate.cpp)
 endif()
 
-# Executor
+# ExecPoolTest
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-add_executable(Executor Executor.cpp)
+add_executable(ExecPoolTest ExecPoolTest.cpp)
 
 if(UNIX)
-    TARGET_LINK_LIBRARIES(Executor pthread)
+    TARGET_LINK_LIBRARIES(ExecPoolTest pthread)
 endif()

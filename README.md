@@ -23,7 +23,7 @@ cd moderncpp
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug && cmake --build build -j$((`nproc`+1))
 ./build/moderncpp
 ./build/DynamicCreate
-./build/Executor
+./build/ExecPoolTest
 ```
 
 ## misc
