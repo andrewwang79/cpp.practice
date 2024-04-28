@@ -9,7 +9,8 @@
 #include <vector>
 
 /**
- * log statement prefix: [Executor-
+ * @brief 任务池，有timeout任务（使用者可以关闭所有任务）
+ * @attention log statement prefix: [Executor-
  */
 
 std::string _spec_time(const std::chrono::time_point<std::chrono::system_clock>& tm) {
@@ -45,6 +46,9 @@ class ExecResult {
   }
 };
 
+/**
+ * @brief 任务
+ */
 template <typename T>
 class ExecTask {
   typedef std::function<ExecResult<T>(const std::atomic_bool&)> TaskFn;
@@ -75,23 +79,25 @@ class ExecTask {
     startTime_ = std::chrono::system_clock::now();
     thread_ = std::thread([this, tef]() {
       try {
-        std::cout << "[Executor-ExecTask] task(" << code << ") end : fn begin" << std::endl;
+        std::cout << "[Executor-ExecTask] task(" << code << ") run : fn begin" << std::endl;
         result = func(stopFlag);
         finish = true;
         endTime_ = std::chrono::system_clock::now();
-        std::cout << "[Executor-ExecTask] task(" << code << ") end : fn end" << std::endl;
+        std::cout << "[Executor-ExecTask] task(" << code << ") run : fn end" << std::endl;
         // 完成后的处理
         bool handleAfterComplete = (!detach || (detach && !stopFlag));
         if (handleAfterComplete) {
           if (tef) {  // detach&&stop时，tef可能不存在
-            std::cout << "[Executor-ExecTask] task(" << code << ") end : tef begin" << std::endl;
+            std::cout << "[Executor-ExecTask] task(" << code << ") run : tef begin" << std::endl;
             tef(code, result);
-            std::cout << "[Executor-ExecTask] task(" << code << ") end : tef end" << std::endl;
+            std::cout << "[Executor-ExecTask] task(" << code << ") run : tef end" << std::endl;
           } else
-            std::cout << "[Executor-ExecTask] task(" << code << ") end : tef is null" << std::endl;
+            std::cout << "[Executor-ExecTask] task(" << code << ") run : tef is null" << std::endl;
         }
-      } catch (...) { std::cerr << "[Executor-ExecTask] task(" << code << ") end exception" << std::endl; }
-      std::cout << "[Executor-ExecTask] task(" << code << ") end : " << getStatus() << std::endl;
+      } catch (const std::system_error& e) { std::cerr << "[Executor-ExecTask] task(" << code << ") run system_error : " << e.what() << std::endl; } catch (const std::exception& e) {
+        std::cerr << "[Executor-ExecTask] task(" << code << ") run exception : " << e.what() << std::endl;
+      } catch (...) { std::cerr << "[Executor-ExecTask] task(" << code << ") run exception" << std::endl; }
+      std::cout << "[Executor-ExecTask] task(" << code << ") run end : " << getStatus() << std::endl;
     });
   }
 
@@ -104,9 +110,9 @@ class ExecTask {
       stopFlag.store(true);
       if (detach && thread_.joinable()) thread_.detach();
       return true;
-    } catch (const std::system_error& e) { std::cerr << "[Executor-ExecTask] task(" << code << ") stop end system_error : " << e.what() << std::endl; } catch (const std::exception& e) {
-      std::cerr << "[Executor-ExecTask] task(" << code << ") stop end exception : " << e.what() << std::endl;
-    } catch (...) { std::cerr << "[Executor-ExecTask] task(" << code << ") stop end ..." << std::endl; }
+    } catch (const std::system_error& e) { std::cerr << "[Executor-ExecTask] task(" << code << ") stop system_error : " << e.what() << std::endl; } catch (const std::exception& e) {
+      std::cerr << "[Executor-ExecTask] task(" << code << ") stop exception : " << e.what() << std::endl;
+    } catch (...) { std::cerr << "[Executor-ExecTask] task(" << code << ") stop exception" << std::endl; }
     return false;
   }
 
@@ -157,12 +163,20 @@ class ExecPool {
    * @brief Construct a new Exec Pool object
    *
    * @param _tasks 标准任务列表
-   * @param _taskCallback 标准任务回调函数
+   * @param _taskCallback 标准任务执行完毕后的回调函数
    * @param _timeoutMS 超时任务毫秒数
-   * @param _timeoutCallback 超时任务回调函数
+   * @param _timeoutCallback 超时任务执行完毕后的回调函数
    */
   ExecPool(const std::vector<ExecTask<T>>& _tasks, TaskCallbackFn _taskCallback, int _timeoutMS, TimeoutCallbackFn _timeoutCallback) { init(_tasks, _taskCallback, _timeoutMS, _timeoutCallback); }
 
+  /**
+   * @brief 初始化
+   *
+   * @param _tasks 标准任务列表
+   * @param _taskCallback 标准任务执行完毕后的回调函数
+   * @param _timeoutMS 超时任务毫秒数
+   * @param _timeoutCallback 超时任务执行完毕后的回调函数
+   */
   void init(const std::vector<ExecTask<T>>& _tasks, TaskCallbackFn _taskCallback, int _timeoutMS, TimeoutCallbackFn _timeoutCallback) {
     tasks = _tasks;
     taskCallback = _taskCallback;
@@ -200,7 +214,7 @@ class ExecPool {
     std::cout << "[Executor-pool] timeoutTask stop end : " << timeoutTaskStopResult << std::endl;
 
     bool stopResult = true;
-    bool for (ExecTask<T>& task : tasks) {
+    for (ExecTask<T>& task : tasks) {
       std::cout << "[Executor-pool] task stop begin(" << task.code << ")" << std::endl;
       bool taskStopResult = task.stop();
       std::cout << "[Executor-pool] task stop end(" << task.code << ") : " << taskStopResult << std::endl;
