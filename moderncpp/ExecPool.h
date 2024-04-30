@@ -206,7 +206,7 @@ class ExecPool {
 
   bool stop() {
     std::cout << "[Executor-pool] stop" << std::endl;
-    if (stop_) return;
+    if (stop_) return true;
     stop_ = true;
 
     std::cout << "[Executor-pool] timeoutTask stop begin" << std::endl;
