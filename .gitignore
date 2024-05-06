@@ -9,3 +9,7 @@ libLoad/out/
 libtest/out/
 moderncpp/build/
 build/
+libDebug/libDebugDll/Debug/
+libDebug/libDebugDll/libDebugDll/Debug/
+libDebug/libDebugExe/Debug/
+libDebug/libDebugExe/libDebugExe/Debug/

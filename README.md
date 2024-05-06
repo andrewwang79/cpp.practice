@@ -9,13 +9,14 @@
 | moderncpp | 反射机制(DynamicCreate.cpp) <br> 智能指针使用方法 <br> 内存泄漏的场景和示例 <br> | 现代C++特性，基于C++17 <br> 用cmake制作 |
 | misc | 全局变量引用, 静态变量 |  |
 | libLoad | 动态库动态加载 | 热更新 |
+| [libtest](libtest/README.md) | 静态库和动态库的分析验证：链接顺序，依赖的多个库导出了相同符号时的冲突分析 | [参考来源](https://blog.csdn.net/sepnineth/article/details/49456889) |
+| libDebug | dll在其他项目里能调试 | 当前是Windows |
 | crash | 崩溃 |  |
 | leak | 内存泄漏的场景和示例 <br> 指针使用方法 |  |
 | log | 日志log4cplus |  |
 | doxygen | doxygen文档 |  |
 | gtest | 单元测试 | C++11和cmake3.14，含单元测试覆盖率lcov |
 | [ITK](https://medical.wangyaqi.cn/#/graphics/itk) | 图像处理库 <br> ITK指针使用方法 | CMakeSettings.json是在Windows开发和远程调试Linux服务器的CMake文件 |
-| [libtest](libtest/README.md) | 静态库和动态库的分析验证：链接顺序，依赖的多个库导出了相同符号时的冲突分析 | [参考来源](https://blog.csdn.net/sepnineth/article/details/49456889) |
 
 ## moderncpp
 ```
@@ -49,6 +50,20 @@ buildDirName=build
 cmake -S . -B ${buildDirName} && cmake --build ${buildDirName} -j$((`nproc`+1)) && make install -C ${buildDirName}
 ./${buildDirName}/dynamicDemo/dynamicDemo
 ```
+
+## libDebug
+```
+lib/dll: libDebugDll\Debug\
+头文件: libDebugDll\libDebugDll\
+pdb: libDebugDll\Debug\
+code: libDebugDll\
+```
+
+* 运行时使用dll：在Visual Studio的项目"属性" -> "调试"，设置"环境"项 PATH=%PATH%;..\..\libDebugDll\Debug\
+* 启用调试时看到源代码：确保有PDB文件和源代码(路径如和PDB编译时不一致，需设置源代码文件路径)
+    1. 关闭 : 在Visual Studio的"Debug" -> "Options" -> "Debugging" -> "General" 中，取消勾选选项 "Enable Just My Code"。
+    1. 设置PDB文件路径 : 在Visual Studio的"Debug" -> "Options" -> "Debugging" -> "Symbols"页面中添加包含PDB文件的目录路径。
+    1. 设置源代码文件路径 : 在Visual Studio的"Debug" -> "Options" -> "Debugging" -> "General" -> "Source file locations" 输入源代码文件的目录路径。
 
 ## crash
 ```
