@@ -235,7 +235,7 @@ class ExecPool {
     return std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count();
   }
 
-  int getTaskCount() { return tasks.size(); }
+  size_t getTaskCount() { return tasks.size(); }
 
   int getFinishTaskCount() { return successTaskCount_ + failTaskCount_; }
 

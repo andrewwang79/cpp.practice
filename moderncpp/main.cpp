@@ -1,6 +1,6 @@
 #include <cxxabi.h>
-
 #include <string.h>
+
 #include <algorithm>
 #include <cstddef>
 #include <functional>
@@ -126,9 +126,7 @@ void _bind() {
   auto bindXyz = std::bind(xyz, std::placeholders::_1, 1, 2);
   bindXyz(1);
   // 绑定类函数
-  auto bindClassXyz =
-      std::bind(&TestClass::xyz, new TestClass(), std::placeholders::_1,
-                std::placeholders::_2, std::placeholders::_3);
+  auto bindClassXyz = std::bind(&TestClass::xyz, new TestClass(), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
   bindClassXyz(1, 2, 3);
 
   typedef std::function<void(int, int, int)> FnXyz;
@@ -136,7 +134,7 @@ void _bind() {
   xyz1(2, 3, 4);
 
   // typeid
-  std::cout << typeid(ABC::TypeClass).name() << std::endl;  // N3ABC9TypeClassE
+  std::cout << typeid(ABC::TypeClass).name() << std::endl;                                                  // N3ABC9TypeClassE
   std::cout << abi::__cxa_demangle(typeid(ABC::TypeClass).name(), nullptr, nullptr, nullptr) << std::endl;  // ABC::TypeClass
 }
 // bind end
@@ -146,9 +144,7 @@ void _for() {
   std::cout << "--------_for--------" << std::endl;
   std::vector<int> vec = {1, 2, 3, 4};
   const std::vector<int>::iterator itr = std::find(vec.begin(), vec.end(), 2);
-  if (itr != vec.end()) {
-    *itr = 3;
-  }
+  if (itr != vec.end()) { *itr = 3; }
   for (auto element : vec) {
     std::cout << element << std::endl;  // read only
   }
@@ -187,9 +183,7 @@ void _rvalue() {
 void _lambda() {
   std::cout << "--------_lambda--------" << std::endl;
   auto important = std::make_unique<int>(1);
-  auto add = [v1 = 1, v2 = std::move(important)](int x, int y) -> int {
-    return x + y + v1 + (*v2);
-  };
+  auto add = [v1 = 1, v2 = std::move(important)](int x, int y) -> int { return x + y + v1 + (*v2); };
   std::cout << add(3, 4) << std::endl;
 }
 // lambda end
@@ -202,30 +196,22 @@ struct Foo {
 };
 
 class Xyz {
-  public:
-    int* a;
-    char* p;
-    std::string name;
-  Xyz(std::string _name) {
-    name = _name;
-  }
+ public:
+  int* a;
+  char* p;
+  std::string name;
+  Xyz(std::string _name) { name = _name; }
   ~Xyz() {
     std::cout << "!!!!!!!!!!!!!!Xyz destructor " << name << std::endl;
-    if (a != NULL)
-      delete a;
-    if (p != NULL)
-      delete[] p;
+    if (a != NULL) delete a;
+    if (p != NULL) delete[] p;
   }
 };
 
 // 引用+1
-void _smart_pointer_fn_var(std::shared_ptr<Xyz> ptr) {
-  std::cout << "!!!!!!!!!!!!!!testcase3 ptr31 var use count : " << ptr.use_count() << std::endl;
-}
+void _smart_pointer_fn_var(std::shared_ptr<Xyz> ptr) { std::cout << "!!!!!!!!!!!!!!testcase3 ptr31 var use count : " << ptr.use_count() << std::endl; }
 // 引用不变
-void _smart_pointer_fn_ref(std::shared_ptr<Xyz>& ptr) {
-  std::cout << "!!!!!!!!!!!!!!testcase3 ptr31 ref use count : " << ptr.use_count() << std::endl;
-}
+void _smart_pointer_fn_ref(std::shared_ptr<Xyz>& ptr) { std::cout << "!!!!!!!!!!!!!!testcase3 ptr31 ref use count : " << ptr.use_count() << std::endl; }
 
 void foo(std::shared_ptr<int> i) { (*i)++; }
 void assignSmartpoint(std::shared_ptr<char*>& p) {
@@ -236,15 +222,15 @@ void assignSmartpoint(std::shared_ptr<char*>& p) {
   buff1[0] = 'A';
   buff1[1] = 0;
   p = char1;
-  std::cout << "!!!!!!!!!!!!!!char1 use count : " << char1.use_count() << std::endl; // 2
+  std::cout << "!!!!!!!!!!!!!!char1 use count : " << char1.use_count() << std::endl;  // 2
   std::cout << "!!!!!!!!!!!!!!p value : " << *p << std::endl;
 
   // 赋值已有指针
-  char * buff2 = new char[len];
+  char* buff2 = new char[len];
   buff2[0] = 'B';
   buff2[1] = 0;
   p = std::make_shared<char*>(buff2);
-  std::cout << "!!!!!!!!!!!!!!char1 use count : " << char1.use_count() << std::endl; // 1
+  std::cout << "!!!!!!!!!!!!!!char1 use count : " << char1.use_count() << std::endl;  // 1
   std::cout << "!!!!!!!!!!!!!!p value : " << *p << std::endl;
 }
 
@@ -258,27 +244,27 @@ void _smart_pointer() {
   // 智能指针进函数赋值，引用参数
   std::shared_ptr<char*> pChar2;
   assignSmartpoint(pChar2);
-  std::cout << "!!!!!!!!!!!!!!pChar2 use count : " << pChar2.use_count() << std::endl; // 1
+  std::cout << "!!!!!!!!!!!!!!pChar2 use count : " << pChar2.use_count() << std::endl;  // 1
   std::cout << "!!!!!!!!!!!!!!pChar2 value : " << *pChar2 << std::endl;
 
   // 计数 begin
-  std::shared_ptr<Xyz> ptr11(new Xyz("11"));  // 引用计数为1
-	std::shared_ptr<Xyz> ptr12 = ptr11;   //  ptr12共享ptr11的指向对象，引用计数为2
-  std::cout << "!!!!!!!!!!!!!!testcase1 ptr11 A use count : " << ptr11.use_count() << std::endl; // 2
-  std::cout << "!!!!!!!!!!!!!!testcase1 ptr12 A use count : " << ptr12.use_count() << std::endl; // 2
-	ptr12.reset();  // ptr12置为空
-  std::cout << "!!!!!!!!!!!!!!testcase1 ptr11 B use count : " << ptr11.use_count() << std::endl; // 1
-  std::cout << "!!!!!!!!!!!!!!testcase1 ptr12 B use count : " << ptr12.use_count() << std::endl; // 0
-	ptr11.reset();  // ptr11置为空
-  std::cout << "!!!!!!!!!!!!!!testcase1 ptr11 C use count : " << ptr11.use_count() << std::endl; // 0
-  std::cout << "!!!!!!!!!!!!!!testcase1 ptr12 C use count : " << ptr12.use_count() << std::endl; // 0
+  std::shared_ptr<Xyz> ptr11(new Xyz("11"));                                                      // 引用计数为1
+  std::shared_ptr<Xyz> ptr12 = ptr11;                                                             //  ptr12共享ptr11的指向对象，引用计数为2
+  std::cout << "!!!!!!!!!!!!!!testcase1 ptr11 A use count : " << ptr11.use_count() << std::endl;  // 2
+  std::cout << "!!!!!!!!!!!!!!testcase1 ptr12 A use count : " << ptr12.use_count() << std::endl;  // 2
+  ptr12.reset();                                                                                  // ptr12置为空
+  std::cout << "!!!!!!!!!!!!!!testcase1 ptr11 B use count : " << ptr11.use_count() << std::endl;  // 1
+  std::cout << "!!!!!!!!!!!!!!testcase1 ptr12 B use count : " << ptr12.use_count() << std::endl;  // 0
+  ptr11.reset();                                                                                  // ptr11置为空
+  std::cout << "!!!!!!!!!!!!!!testcase1 ptr11 C use count : " << ptr11.use_count() << std::endl;  // 0
+  std::cout << "!!!!!!!!!!!!!!testcase1 ptr12 C use count : " << ptr12.use_count() << std::endl;  // 0
 
   std::shared_ptr<Xyz> ptr21(new Xyz("21"));
-	Xyz *ptr22 = new Xyz("22");
-  std::cout << "!!!!!!!!!!!!!!testcase2 ptr21 A use count : " << ptr21.use_count() << std::endl; // 1
-	ptr21.reset(ptr22);  // ptr21指向ptr22：会自动delete(ptr21)老指针，新指针(xyz22)会在出作用域后自动delete[因为套了智能指针]
-  std::cout << "!!!!!!!!!!!!!!testcase2 ptr21 A use count : " << ptr21.use_count() << std::endl; // 1
-  
+  Xyz* ptr22 = new Xyz("22");
+  std::cout << "!!!!!!!!!!!!!!testcase2 ptr21 A use count : " << ptr21.use_count() << std::endl;  // 1
+  ptr21.reset(ptr22);                                                                             // ptr21指向ptr22：会自动delete(ptr21)老指针，新指针(xyz22)会在出作用域后自动delete[因为套了智能指针]
+  std::cout << "!!!!!!!!!!!!!!testcase2 ptr21 A use count : " << ptr21.use_count() << std::endl;  // 1
+
   std::shared_ptr<Xyz> ptr31(new Xyz("31"));
   _smart_pointer_fn_var(ptr31);
   std::cout << "!!!!!!!!!!!!!!testcase3 ptr31 after var use count : " << ptr31.use_count() << std::endl;
@@ -289,8 +275,7 @@ void _smart_pointer() {
   auto class_pointer = std::make_unique<Foo>();
   class_pointer->foo();
   // auto class_pointer2 = class_pointer; // 编译报错，需要用下面的move
-  auto class_pointer2 = std::move(class_pointer); // class_pointer2获得内存所有权，class_pointer此时等于nullptr
-
+  auto class_pointer2 = std::move(class_pointer);  // class_pointer2获得内存所有权，class_pointer此时等于nullptr
 }
 
 // pointer end

@@ -1,9 +1,13 @@
 cmake_minimum_required(VERSION 3.1.0)
 
-set(CMAKE_CXX_STANDARD 14) # 11
+set(CMAKE_CXX_STANDARD 17)
 
 set(TARGET_NAME "moderncpp")
 project(${TARGET_NAME})
+
+if(WIN32)
+    add_compile_options(/utf-8)
+endif()
 
 # moderncpp
 if(UNIX)
@@ -17,9 +21,10 @@ if(UNIX)
 endif()
 
 # ExecPoolTest
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-add_executable(ExecPoolTest ExecPoolTest.cpp)
+add_subdirectory(ExecPool)
 
+# ThreadTest
+add_executable(ThreadTest ThreadTest.cpp)
 if(UNIX)
-    TARGET_LINK_LIBRARIES(ExecPoolTest pthread)
+    TARGET_LINK_LIBRARIES(ThreadTest pthread)
 endif()

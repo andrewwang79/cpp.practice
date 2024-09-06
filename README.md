@@ -5,8 +5,8 @@
 * 所有代码只在Linux验证通过
 
 | 目录 | 内容 | 说明 |
-| - | - | -- |
-| moderncpp | 反射机制(DynamicCreate.cpp) <br> 智能指针使用方法 <br> 内存泄漏的场景和示例 <br> | 现代C++特性，基于C++17 <br> 用cmake制作 |
+| - | - | - |
+| moderncpp | 现代C++特性，基于C++17 <br> 用cmake制作 |  |
 | misc | 全局变量引用, 静态变量 |  |
 | libLoad | 动态库动态加载 | 热更新 |
 | [libtest](libtest/README.md) | 静态库和动态库的分析验证：链接顺序，依赖的多个库导出了相同符号时的冲突分析 | [参考来源](https://blog.csdn.net/sepnineth/article/details/49456889) |
@@ -17,15 +17,6 @@
 | doxygen | doxygen文档 |  |
 | gtest | 单元测试 | C++11和cmake3.14，含单元测试覆盖率lcov |
 | [ITK](https://medical.wangyaqi.cn/#/graphics/itk) | 图像处理库 <br> ITK指针使用方法 | CMakeSettings.json是在Windows开发和远程调试Linux服务器的CMake文件 |
-
-## moderncpp
-```
-cd moderncpp
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug && cmake --build build -j$((`nproc`+1))
-./build/moderncpp
-./build/DynamicCreate
-./build/ExecPoolTest
-```
 
 ## misc
 ```
