@@ -69,6 +69,28 @@
                     "ignoreFailures": true
                 }
             ]
+        },
+        {
+            "name": "dds(Windows/Debug)",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/fastdds/build/Debug/hello_world.exe",
+            "args": ["publisher"],
+            "stopAtEntry": false,
+            "environment": [
+                {
+                    "name": "PATH",
+                    "value": "C:/vcpkg/installed/x64-windows/debug/bin;${env:PATH};"
+                }
+            ],
+            "cwd": "${workspaceFolder}/fastdds/build/Debug",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
         }
     ]
 }

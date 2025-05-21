@@ -17,6 +17,7 @@
 | doxygen | doxygen文档 |  |
 | gtest | 单元测试 | C++11和cmake3.14，含单元测试覆盖率lcov |
 | [ITK](https://medical.wangyaqi.cn/#/graphics/itk) | 图像处理库 <br> ITK指针使用方法 | CMakeSettings.json是在Windows开发和远程调试Linux服务器的CMake文件 |
+| fastdds | https://github.com/eProsima/Fast-DDS/tree/master/examples/cpp/hello_world |  |
 
 ## misc
 ```
@@ -92,6 +93,7 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${log4cplusLibPath} && ./log
 主页参见main.cpp
 新增导航树页面参见article.md
 ```
+
 * 生成命令
   * cd doxygen && sh gen.sh doxygenDemo 1.0.0.1 ./ ./doc doxyfile.tpl
 
@@ -123,4 +125,13 @@ module_name=itk
 cd ${prj_path}
 rm -rf build && mkdir build && cd build && conan install ../conanfile.txt -s arch=x86_64 -s os=Linux -r cloud --update && cd ..
 cmake -S . -B build && cmake --build build -j$((`nproc`+1)) && cd build/ && ./bin/${module_name}
+```
+
+## fastdds
+* 需要安装vcpkg和fastdds
+
+```
+cd fastdds
+cmake -G "Visual Studio 15 2017 Win64" -S . -B build -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
+cmake --build build
 ```
