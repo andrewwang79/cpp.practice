@@ -8,8 +8,8 @@
             "name": "DebugFile(Linux)",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceRoot}/moderncpp/build/${fileBasenameNoExtension}",
-            "cwd": "${workspaceRoot}",
+            "program": "${workspaceFolder}/moderncpp/build/${fileBasenameNoExtension}",
+            "cwd": "${workspaceFolder}",
             "args": [],
             "stopAtEntry": false,
             "setupCommands": [
@@ -24,8 +24,8 @@
             "name": "DebugFile(Windows)",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceRoot}/moderncpp/build/Debug/${fileBasenameNoExtension}",
-            "cwd": "${workspaceRoot}",
+            "program": "${workspaceFolder}/moderncpp/build/Debug/${fileBasenameNoExtension}",
+            "cwd": "${workspaceFolder}",
             "args": [],
             "stopAtEntry": false,
         },
@@ -33,8 +33,8 @@
             "name": "moderncpp(Linux)",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceRoot}/moderncpp/build/moderncpp",
-            "cwd": "${workspaceRoot}",
+            "program": "${workspaceFolder}/moderncpp/build/moderncpp",
+            "cwd": "${workspaceFolder}",
             "args": [],
             "stopAtEntry": false,
             "setupCommands": [
@@ -49,8 +49,8 @@
             "name": "ExecPoolTest(Windows)",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceRoot}/moderncpp/build/ExecPoolTest.exe",
-            "cwd": "${workspaceRoot}",
+            "program": "${workspaceFolder}/moderncpp/build/ExecPoolTest.exe",
+            "cwd": "${workspaceFolder}",
             "args": [],
             "stopAtEntry": false
         },
@@ -58,8 +58,8 @@
             "name": "ExecPoolTest(Linux)",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceRoot}/moderncpp/build/ExecPoolTest",
-            "cwd": "${workspaceRoot}",
+            "program": "${workspaceFolder}/moderncpp/build/ExecPoolTest",
+            "cwd": "${workspaceFolder}",
             "args": [],
             "stopAtEntry": false,
             "setupCommands": [
@@ -71,7 +71,53 @@
             ]
         },
         {
-            "name": "dds(Windows/Debug)",
+            "name": "dds_publisher(MacOS/Debug)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/fastdds/build/hello_world",
+            "cwd": "${workspaceFolder}",
+            "args": ["publisher"],
+            "stopAtEntry": false,
+            "MIMode": "lldb",
+            "environment": [
+                {
+                    "name": "FASTDDS_DISABLE_THREAD_AFFINITY",
+                    "value": 1
+                }
+            ],
+            "setupCommands": [
+                {
+                    "text": "-enable-pretty-printing",
+                    "description": "enable pretty printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "dds_subscriber(MacOS/Debug)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/fastdds/build/hello_world",
+            "cwd": "${workspaceFolder}",
+            "args": ["subscriber"],
+            "stopAtEntry": false,
+            "MIMode": "lldb",
+            "environment": [
+                {
+                    "name": "FASTDDS_DISABLE_THREAD_AFFINITY",
+                    "value": 1
+                }
+            ],
+            "setupCommands": [
+                {
+                    "text": "-enable-pretty-printing",
+                    "description": "enable pretty printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "dds_publisher(Windows/Debug)",
             "type": "cppvsdbg",
             "request": "launch",
             "program": "${workspaceFolder}/fastdds/build/Debug/hello_world.exe",
