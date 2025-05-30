@@ -16,14 +16,18 @@ cmake_minimum_required(VERSION 3.20)
 
 project(fastdds_hello_world_example VERSION 1 LANGUAGES CXX)
 
-# 指定Fast DDS依赖路径
-set(VCPKG_ROOT "C:/vcpkg" CACHE PATH "" FORCE)
-set(fastcdr_DIR "${VCPKG_ROOT}/installed/x64-windows/share/fastcdr")
-set(fastdds_DIR "${VCPKG_ROOT}/installed/x64-windows/share/fastdds")
-set(foonathan_memory_DIR "${VCPKG_ROOT}/installed/x64-windows/share/foonathan_memory")
-# set(fastcdr_DIR "C:/Program Files/eProsima/fastdds3.2.2/share/fastcdr-x64Win64VS2019/cmake" CACHE PATH "" FORCE)
-# set(fastdds_DIR "C:/Program Files/eProsima/fastdds3.2.2/share/fastdds-x64Win64VS2019/cmake" CACHE PATH "" FORCE)
-# set(foonathan_memory_DIR "C:/Program Files/eProsima/fastdds3.2.2/share/foonathan_memory-x64Win64VS2019/cmake" CACHE PATH "" FORCE)
+# 指定FastDDS依赖路径
+option(LOAD_BY_VCPKG "Use Fast DDS load by VCPKG" ON) # 默认ON（使用VCPKG）
+if(LOAD_BY_VCPKG)
+  set(VCPKG_ROOT "C:/vcpkg" CACHE PATH "" FORCE)
+  set(fastcdr_DIR "${VCPKG_ROOT}/installed/x64-windows/share/fastcdr")
+  set(fastdds_DIR "${VCPKG_ROOT}/installed/x64-windows/share/fastdds")
+  set(foonathan_memory_DIR "${VCPKG_ROOT}/installed/x64-windows/share/foonathan_memory")
+else()
+  set(fastcdr_DIR "C:/Program Files/eProsima/fastdds3.2.2/share/fastcdr-x64Win64VS2019/cmake" CACHE PATH "" FORCE)
+  set(fastdds_DIR "C:/Program Files/eProsima/fastdds3.2.2/share/fastdds-x64Win64VS2019/cmake" CACHE PATH "" FORCE)
+  set(foonathan_memory_DIR "C:/Program Files/eProsima/fastdds3.2.2/share/foonathan_memory-x64Win64VS2019/cmake" CACHE PATH "" FORCE)
+endif()
 # Find requirements
 if(NOT fastdds_FOUND)
     find_package(fastdds 3 REQUIRED)
